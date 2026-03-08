@@ -1,0 +1,98 @@
+---
+/* =============================================================================
+   BREADCRUMBS — Navigation trail showing current page hierarchy
+   =============================================================================
+   Renders a breadcrumb trail like: Home > Projects > Sample Project
+   Uses semantic <nav> with aria-label for screen readers and structured
+   data via an ordered list.
+
+   How it works on the webpage:
+   - Shows the path from Home to the current page
+   - Each ancestor is a clickable link, current page is plain text
+   - Separators (/) are added via CSS ::before pseudo-elements
+
+   Props:
+   - items: Array of { label, href } objects. Last item has no href (current page).
+
+   Usage:
+   <Breadcrumbs items={[
+     { label: 'Home', href: '/' },
+     { label: 'Projects', href: '/projects' },
+     { label: 'My Project' }
+   ]} />
+
+   Coordinated changes:
+   - Used by: ContentLayout, WritingPostLayout, projects/[slug], certifications/[slug]
+   - Changing separator style → affects all pages with breadcrumbs
+   ============================================================================= */
+
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb" class="breadcrumbs" data-pagefind-ignore>
+  <ol>
+    {items.map((item, index) => (
+      <li>
+        {item.href ? (
+          <a href={item.href}>{item.label}</a>
+        ) : (
+          <span aria-current="page">{item.label}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .breadcrumbs {
+    margin-bottom: var(--space-3);
+  }
+
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  li {
+    margin-bottom: 0;
+  }
+
+  /* Separator between breadcrumb items */
+  li + li::before {
+    content: '/';
+    margin: 0 0.375rem;
+    color: var(--muted);
+  }
+
+  a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  /* Current page — not a link, just plain text */
+  span[aria-current] {
+    color: var(--text);
+    font-weight: 500;
+  }
+</style>

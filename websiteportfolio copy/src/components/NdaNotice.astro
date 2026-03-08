@@ -1,0 +1,73 @@
+---
+/* =============================================================================
+   NDA NOTICE — Warning bar for confidential/sanitized project content
+   =============================================================================
+   Displays a colored notice bar indicating that project details are either
+   under NDA or have been sanitized for public viewing.
+
+   How it works on the webpage:
+   - "nda" level: Orange bar with shield icon — "Full details available under NDA"
+   - "sanitized" level: Subtle gray bar — "Sanitized for public disclosure"
+   - Only rendered when confidentiality is not "public"
+
+   Props:
+   - level: "nda" | "sanitized" — controls the color and message
+
+   Usage: <NdaNotice level="nda" />
+
+   Coordinated changes:
+   - Used by: pages/projects/[...slug].astro (shown when confidentiality != "public")
+   ============================================================================= */
+
+interface Props {
+  level: 'nda' | 'sanitized';
+}
+
+const { level } = Astro.props;
+
+/* Message and styling differ based on confidentiality level */
+const config = {
+  nda: {
+    message: 'Full details available under NDA. Reach out to discuss.',
+    className: 'notice-nda',
+  },
+  sanitized: {
+    message: 'Details have been sanitized for public disclosure.',
+    className: 'notice-sanitized',
+  },
+};
+
+const { message, className } = config[level];
+---
+
+<aside class:list={['nda-notice', className]} role="note">
+  <p>{message}</p>
+</aside>
+
+<style>
+  .nda-notice {
+    padding: var(--space-2);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-3);
+  }
+
+  .nda-notice p {
+    margin: 0;
+  }
+
+  /* Orange bar for NDA content */
+  .notice-nda {
+    background: var(--nda-bg);
+    border: 1px solid var(--nda-border);
+    color: var(--nda-text);
+  }
+
+  /* Subtle gray bar for sanitized content */
+  .notice-sanitized {
+    background: var(--planned-bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+</style>

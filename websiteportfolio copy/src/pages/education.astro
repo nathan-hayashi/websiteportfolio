@@ -1,0 +1,218 @@
+---
+/* =============================================================================
+   EDUCATION PAGE — Degree, coursework, projects, and activities
+   =============================================================================
+   Displays academic background including degree details, relevant coursework,
+   academic projects, and extracurricular activities. Corresponds to SVG 11.
+
+   URL: /education
+
+   Coordinated changes:
+   - All education data (degree, coursework, projects, activities) →
+     edit src/data/education.ts (auto-read here)
+   - Adding a course → add entry to education.coursework in src/data/education.ts
+   - Adding an activity → add entry to education.activities in src/data/education.ts
+   - Imports: ContentLayout, Tag, education data
+
+   How it works on the webpage:
+   - Degree info at the top (institution, major, graduation date)
+   - Relevant coursework listed in a clean grid
+   - Academic projects with technology tags
+   - Extracurricular activities and clubs
+
+   Future improvement: Add course detail modal or expandable descriptions.
+   ============================================================================= */
+
+import ContentLayout from '../layouts/ContentLayout.astro';
+import Tag from '../components/Tag.astro';
+import { education } from '../data/education';
+---
+
+<ContentLayout
+  title="Education"
+  description={`${education.degree.title} — ${education.degree.institution}`}
+  breadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'Education' },
+  ]}
+>
+  {/* Degree information */}
+  <section class="degree-section">
+    <div class="degree-header">
+      <img src="/assets/logos/uwb.jpg" alt="" class="institution-logo" width="56" height="56" loading="lazy" />
+      <div>
+        <h2>{education.degree.institution}</h2>
+        <p class="degree-title">{education.degree.title}</p>
+        <p class="degree-meta">
+          {education.degree.location} &middot; Graduated {education.degree.graduationDate}
+        </p>
+        {education.degree.gpa && (
+          <p class="gpa">GPA: {education.degree.gpa}</p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  {/* Relevant coursework */}
+  {education.coursework.length > 0 && (
+    <section class="coursework-section">
+      <h2>Relevant Coursework</h2>
+      <div class="course-grid">
+        {education.coursework.map(course => (
+          <div class="course-card">
+            <span class="course-code">{course.code}</span>
+            <span class="course-name">{course.name}</span>
+            {course.description && (
+              <p class="course-desc">{course.description}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {/* Academic projects */}
+  {education.projects.length > 0 && (
+    <section class="projects-section">
+      <h2>Academic Projects</h2>
+      {education.projects.map(project => (
+        <div class="project-entry">
+          <h3>{project.title}</h3>
+          <p>{project.description}</p>
+          <div class="tags">
+            {project.technologies.map(tech => <Tag label={tech} />)}
+          </div>
+        </div>
+      ))}
+    </section>
+  )}
+
+  {/* Activities */}
+  {education.activities.length > 0 && (
+    <section class="activities-section">
+      <h2>Activities</h2>
+      <ul class="activities-list">
+        {education.activities.map(activity => (
+          <li>
+            <strong>{activity.name}</strong> — {activity.role}
+            {activity.description && <p>{activity.description}</p>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</ContentLayout>
+
+<style>
+  section {
+    margin-bottom: var(--space-5);
+  }
+
+  h2 {
+    margin-bottom: var(--space-3);
+  }
+
+  .degree-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .degree-header h2 {
+    margin-bottom: var(--space-1);
+  }
+
+  .institution-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .degree-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 var(--space-1) 0;
+  }
+
+  .degree-meta {
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .gpa {
+    margin-top: var(--space-1);
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-2);
+  }
+
+  .course-card {
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .course-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 0.25em;
+  }
+
+  .course-name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .course-desc {
+    margin: var(--space-1) 0 0;
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: var(--lh-body);
+  }
+
+  .project-entry {
+    margin-bottom: var(--space-3);
+  }
+
+  .project-entry h3 {
+    margin: 0 0 var(--space-1) 0;
+    font-size: 1.0625rem;
+  }
+
+  .project-entry p {
+    margin: 0 0 var(--space-2) 0;
+    font-size: 0.9375rem;
+    line-height: var(--lh-body);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .activities-list {
+    padding-left: 1.25em;
+  }
+
+  .activities-list li {
+    margin-bottom: var(--space-2);
+  }
+
+  .activities-list p {
+    margin: var(--space-1) 0 0;
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+</style>

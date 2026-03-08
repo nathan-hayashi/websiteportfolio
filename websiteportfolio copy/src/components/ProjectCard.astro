@@ -1,0 +1,124 @@
+---
+/* =============================================================================
+   PROJECT CARD — Card for project listing with status badge and tags
+   =============================================================================
+   A card component specifically for the /projects listing page. Shows project
+   title, description, status badge, technology tags, and optional NDA line.
+
+   How it works on the webpage:
+   - Displays as a clickable card linking to the project detail page
+   - StatusBadge shows Complete/In Progress/Planned in the header
+   - Technology tags are shown as Tag chips at the bottom
+   - NDA/sanitized projects show a subtle confidentiality note
+
+   Props:
+   - project: The project content collection entry
+
+   Usage: <ProjectCard project={entry} />
+
+   Coordinated changes:
+   - Used by: pages/projects/index.astro, pages/index.astro (featured section)
+   - Card fields must match project collection schema in content.config.ts
+   - Imports: StatusBadge, Tag
+   ============================================================================= */
+
+import StatusBadge from './StatusBadge.astro';
+import Tag from './Tag.astro';
+
+interface Props {
+  project: {
+    id: string;
+    data: {
+      title: string;
+      description: string;
+      technologies: string[];
+      date: Date;
+      status?: string;
+      confidentiality?: string;
+    };
+  };
+}
+
+const { project } = Astro.props;
+const { title, description, technologies, status, confidentiality } = project.data;
+---
+
+<a href={`/projects/${project.id}`} class="project-card">
+  <div class="card-header">
+    <h2>{title}</h2>
+    {status && <StatusBadge status={status} />}
+  </div>
+
+  <p class="card-desc">{description}</p>
+
+  {/* Confidentiality note — only shown for NDA or sanitized projects */}
+  {confidentiality && confidentiality !== 'public' && (
+    <p class="nda-line">
+      {confidentiality === 'nda' ? 'Details under NDA' : 'Sanitized for public disclosure'}
+    </p>
+  )}
+
+  {/* Technology tags row */}
+  {technologies.length > 0 && (
+    <div class="tags">
+      {technologies.map(tech => <Tag label={tech} />)}
+    </div>
+  )}
+</a>
+
+<style>
+  .project-card {
+    display: block;
+    padding: var(--space-3);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .project-card:hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  .project-card:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .card-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: var(--lh-heading);
+  }
+
+  .card-desc {
+    margin: 0 0 var(--space-2) 0;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    line-height: var(--lh-body);
+  }
+
+  .nda-line {
+    margin: 0 0 var(--space-2) 0;
+    font-size: 0.8125rem;
+    color: var(--nda-text);
+    font-style: italic;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+</style>

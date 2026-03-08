@@ -1,0 +1,91 @@
+---
+/* =============================================================================
+   WORK PAGE — Timeline + case studies
+   =============================================================================
+   Displays work experience as a vertical timeline with optional expandable
+   case studies. Combines SVG 03 (timeline) and SVG 04 (case studies).
+
+   URL: /work
+
+   Coordinated changes:
+   - Adding/editing work entries → edit src/data/work.ts (auto-read here)
+   - Adding a case study to a role → add a caseStudy object to the entry
+     in src/data/work.ts
+   - Imports: ContentLayout, TimelineEntry, CaseStudyCard, work data
+
+   How it works on the webpage:
+   - Timeline section shows all roles with a vertical line and dots
+   - Each role can have an expandable case study underneath
+   - Both sections are on the same page (no separate route)
+
+   Future improvement: Add anchor-based toggle between timeline and case
+   study views using CSS :target for zero-JS mode switching.
+   ============================================================================= */
+
+import ContentLayout from '../layouts/ContentLayout.astro';
+import TimelineEntry from '../components/TimelineEntry.astro';
+import CaseStudyCard from '../components/CaseStudyCard.astro';
+import { workExperience } from '../data/work';
+
+/* Format date strings for display.
+   Accepts "YYYY-MM" (e.g., "2025-11" → "November 2025") or
+   already-formatted strings (e.g., "November 2025" passed through). */
+function formatDate(dateStr: string): string {
+  if (dateStr === 'Present') return 'Present';
+  if (/^\d{4}-\d{2}$/.test(dateStr)) {
+    const [year, month] = dateStr.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+  }
+  return dateStr;
+}
+---
+
+<ContentLayout
+  title="Work & Experience"
+  description="Professional timeline and technical case studies."
+  breadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'Work' },
+  ]}
+  audience="Hiring Managers & Recruiters"
+>
+  {/* ===== TIMELINE SECTION ===== */}
+  <section aria-label="Work timeline">
+    <div class="timeline">
+      {workExperience.map((entry, index) => (
+        <TimelineEntry
+          title={entry.title}
+          company={entry.company}
+          logo={entry.logo}
+          startDate={formatDate(entry.startDate)}
+          endDate={formatDate(entry.endDate)}
+          highlights={entry.highlights}
+          isCurrent={index === 0}
+        >
+          {/* If this role has a case study, show it as an expandable section */}
+          {entry.caseStudy && (
+            <CaseStudyCard
+              title={entry.caseStudy.title}
+              problem={entry.caseStudy.problem}
+              approach={entry.caseStudy.approach}
+              outcome={entry.caseStudy.outcome}
+              technologies={entry.caseStudy.technologies}
+            />
+          )}
+        </TimelineEntry>
+      ))}
+    </div>
+  </section>
+
+  {/* Empty state — shown when no work entries exist */}
+  {workExperience.length === 0 && (
+    <p class="text-muted">Work experience coming soon.</p>
+  )}
+</ContentLayout>
+
+<style>
+  .timeline {
+    position: relative;
+  }
+</style>

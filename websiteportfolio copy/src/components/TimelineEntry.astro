@@ -1,0 +1,173 @@
+---
+/* =============================================================================
+   TIMELINE ENTRY — Work timeline position with vertical line and dot
+   =============================================================================
+   Renders a single position in the work experience timeline on the /work page.
+   Each entry has a dot on a vertical line, with role details beside it.
+
+   How it works on the webpage:
+   - Left side: vertical line with a colored dot at each position
+   - Right side: role title, company, date range, and summary bullets
+   - Dots are color-coded: blue for current role, gray for past roles
+
+   Props:
+   - title: Job title
+   - company: Employer name
+   - startDate: Start date string (e.g., "June 2024")
+   - endDate: End date string (e.g., "Present")
+   - highlights: Array of bullet point strings
+   - isCurrent: Whether this is the current role (blue dot)
+
+   Usage:
+   <TimelineEntry
+     title="IAM Analyst"
+     company="T-Mobile"
+     startDate="June 2024"
+     endDate="Present"
+     highlights={['Deployed passwordless auth...']}
+     isCurrent={true}
+   />
+
+   Coordinated changes:
+   - Used by: pages/work.astro
+   - Data comes from data/work.ts — edit entries there, not here
+   ============================================================================= */
+
+interface Props {
+  title: string;
+  company: string;
+  logo?: string;
+  startDate: string;
+  endDate: string;
+  highlights: string[];
+  isCurrent?: boolean;
+}
+
+const { title, company, logo, startDate, endDate, highlights, isCurrent = false } = Astro.props;
+---
+
+<div class:list={['timeline-entry', { current: isCurrent }]}>
+  {/* Dot on the vertical timeline line */}
+  <div class="timeline-marker" aria-hidden="true">
+    <span class="dot"></span>
+  </div>
+
+  {/* Role details */}
+  <div class="timeline-content">
+    <div class="entry-header">
+      {logo && (
+        <img src={logo} alt="" class="company-logo" width="40" height="40" loading="lazy" />
+      )}
+      <div>
+        <h3>{title}</h3>
+        <p class="company">{company}</p>
+        <p class="date-range">{startDate} — {endDate}</p>
+      </div>
+    </div>
+
+    {highlights.length > 0 && (
+      <ul class="highlights">
+        {highlights.map(item => <li>{item}</li>)}
+      </ul>
+    )}
+
+    {/* Slot for optional case study or additional content */}
+    <slot />
+  </div>
+</div>
+
+<style>
+  .timeline-entry {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: var(--space-3);
+    position: relative;
+    padding-bottom: var(--space-4);
+  }
+
+  /* Vertical line connecting entries */
+  .timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  /* The line itself — stretches the full height of the entry */
+  .timeline-marker::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  /* Dot at the top of each entry */
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid var(--surface);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Current role gets a blue dot */
+  .current .dot {
+    background: var(--accent);
+  }
+
+  .timeline-content {
+    min-width: 0;
+  }
+
+  .entry-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .company-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  h3 {
+    margin: 0 0 var(--space-1) 0;
+    font-size: 1.125rem;
+    line-height: var(--lh-heading);
+  }
+
+  .company {
+    margin: 0;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .date-range {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .highlights {
+    padding-left: 1.25em;
+    margin: 0;
+  }
+
+  .highlights li {
+    margin-bottom: var(--space-1);
+    font-size: 0.9375rem;
+    line-height: var(--lh-body);
+    color: var(--muted);
+  }
+</style>

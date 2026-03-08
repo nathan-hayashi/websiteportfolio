@@ -1,0 +1,152 @@
+---
+/* =============================================================================
+   GATE PAGE — Role selection entry point
+   =============================================================================
+   The default entry page where visitors identify themselves as a Recruiter,
+   Hiring Manager, or Visitor/Peer. First-time visitors to "/" are redirected
+   here by an inline script in BaseLayout. After choosing a role (or
+   clicking "See everything"), they proceed to the home page.
+
+   URL: /gate
+
+   Coordinated changes:
+   - Site domain shown in heading → reads site.domain from src/data/site.ts
+   - Role card labels/descriptions → edit directly in the RoleCard props below
+   - Adding/removing role options → add/remove a <RoleCard> in the role-grid div
+   - Imports: BaseLayout, RoleCard, site data
+
+   How it works on the webpage:
+   - Three large clickable cards in a centered column/row
+   - Clicking a card sets sessionStorage('visitor-role', role) for
+     progressive enhancement, then navigates to the home page
+   - The role can optionally be read by other pages to customize content
+   - If JavaScript is disabled, cards still work as plain links to "/"
+
+   How roles work:
+   - Selected role stored in sessionStorage('visitor-role')
+   - BaseLayout inline script sets data-role on <html> before paint
+   - Home page CSS reorders sections and highlights tiles per role
+   - "Skip" sets role to 'all' → shows default "everything" layout, prevents redirect loop
+   ============================================================================= */
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RoleCard from '../components/RoleCard.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout title="Welcome" description="Choose how you'd like to explore Nathan Lim's portfolio.">
+  <div class="gate-container">
+    <header class="gate-header">
+      <h1>Welcome to {site.domain}</h1>
+      <p class="gate-subtitle">How would you like to explore?</p>
+    </header>
+
+    {/* Three role selection cards */}
+    <div class="role-grid">
+      <RoleCard
+        title="Recruiter"
+        description="Quick overview of skills, experience, and credentials."
+        href="/"
+        role="recruiter"
+      />
+      <RoleCard
+        title="Hiring Manager"
+        description="Technical depth — architecture decisions, case studies, and outcomes."
+        href="/"
+        role="hiring-manager"
+      />
+      <RoleCard
+        title="Visitor / Peer"
+        description="Browse everything — projects, writing, and background."
+        href="/"
+        role="visitor"
+      />
+    </div>
+
+    {/* Skip option — go straight to home without selecting, clears stored role */}
+    <a href="/" class="skip-gate" id="skip-gate">
+      See everything — no filtering &rarr;
+    </a>
+  </div>
+</BaseLayout>
+
+{/* Script to store role in sessionStorage — progressive enhancement */}
+<script>
+  /* Store selected role on card click */
+  document.querySelectorAll('.role-grid a[data-role]').forEach(card => {
+    card.addEventListener('click', (e) => {
+      const role = (e.currentTarget as HTMLAnchorElement).dataset.role;
+      if (role) {
+        try {
+          sessionStorage.setItem('visitor-role', role);
+        } catch {
+          /* sessionStorage unavailable — proceed without storing */
+        }
+      }
+    });
+  });
+
+  /* Set 'all' role when "See everything" is clicked — prevents redirect loop */
+  const skipBtn = document.getElementById('skip-gate');
+  if (skipBtn) {
+    skipBtn.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('visitor-role', 'all');
+      } catch {}
+    });
+  }
+</script>
+
+<style>
+  .gate-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 60vh;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .gate-header {
+    margin-bottom: var(--space-5);
+  }
+
+  .gate-header h1 {
+    margin: 0 0 var(--space-1) 0;
+    font-size: 2rem;
+  }
+
+  .gate-subtitle {
+    color: var(--muted);
+    font-size: 1.125rem;
+    margin: 0;
+  }
+
+  .role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-3);
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: var(--space-4);
+  }
+
+  .skip-gate {
+    display: inline-flex;
+    align-items: center;
+    margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    color: var(--muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .skip-gate:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+</style>

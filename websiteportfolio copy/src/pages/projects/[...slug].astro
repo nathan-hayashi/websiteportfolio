@@ -1,0 +1,232 @@
+---
+/* =============================================================================
+   PROJECT DETAIL — Individual project page with full case study
+   =============================================================================
+   Renders a single project's complete details from its markdown content.
+   Shows status badge, NDA notice, role, technologies, and the full writeup.
+
+   URL: /projects/[slug] (one page per project markdown file)
+
+   Coordinated changes:
+   - Project content → edit the .md file in src/content/projects/
+   - Project frontmatter fields → defined in src/content.config.ts (projects schema)
+   - Adding new frontmatter display (e.g., a new field) → also add it to
+     the schema in content.config.ts
+   - Imports: BaseLayout, Breadcrumbs, StatusBadge, NdaNotice, Tag,
+     ExternalLink, astro:content
+
+   How it works on the webpage:
+   - Breadcrumbs: Home > Projects > Project Title
+   - Header with title, status badge, and metadata (role, dates)
+   - NDA notice bar if project is under NDA or sanitized
+   - Full markdown content rendered below
+   - Technology and tool tags at the bottom
+
+   Future improvement: Add "Related Projects" section at the bottom.
+   ============================================================================= */
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import NdaNotice from '../../components/NdaNotice.astro';
+import Tag from '../../components/Tag.astro';
+import ExternalLink from '../../components/ExternalLink.astro';
+import { getCollection, render } from 'astro:content';
+
+/* Generate static paths for all projects at build time */
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map(project => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, description, technologies, date, endDate, status, confidentiality, role, tools, github } = project.data;
+
+/* Format dates for display */
+const formatDate = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+
+/* Map project slugs to company/org logos */
+const projectLogos: Record<string, string> = {
+  'your-project-slug': '/assets/logos/your-company.png'  // TODO: Update,
+  // Add more project logo mappings here,
+  'example-project': '',
+  // Additional projects...
+};
+const logo = projectLogos[project.id] || '';
+---
+
+<BaseLayout title={title} description={description}>
+  <Breadcrumbs items={[
+    { label: 'Home', href: '/' },
+    { label: 'Projects', href: '/projects' },
+    { label: title },
+  ]} />
+
+  <article class="project-detail">
+    {/* Project header — title, status, metadata */}
+    <header class="project-header">
+      <div class="title-row">
+        {logo && (
+          <img src={logo} alt="" class="project-logo" width="48" height="48" loading="lazy" />
+        )}
+        <div>
+          <div class="title-status">
+            <h1>{title}</h1>
+            {status && <StatusBadge status={status} />}
+          </div>
+          <div class="meta-row">
+            {role && <span class="role">{role}</span>}
+            <span class="dates">
+              {formatDate(date)}{endDate ? ` — ${formatDate(endDate)}` : ''}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {github && (
+        <p class="github-link">
+          <ExternalLink href={github}>View on GitHub</ExternalLink>
+        </p>
+      )}
+    </header>
+
+    {/* NDA notice — only shown for non-public projects */}
+    {confidentiality && confidentiality !== 'public' && (
+      <NdaNotice level={confidentiality as 'nda' | 'sanitized'} />
+    )}
+
+    {/* Full project writeup from markdown */}
+    <div class="project-content measure">
+      <Content />
+    </div>
+
+    {/* Technology and tool tags */}
+    {(technologies.length > 0 || (tools && tools.length > 0)) && (
+      <footer class="project-footer">
+        {technologies.length > 0 && (
+          <div class="tag-group">
+            <h3>Technologies</h3>
+            <div class="tags">
+              {technologies.map(tech => <Tag label={tech} />)}
+            </div>
+          </div>
+        )}
+        {tools && tools.length > 0 && (
+          <div class="tag-group">
+            <h3>Tools</h3>
+            <div class="tags">
+              {tools.map(tool => <Tag label={tool} />)}
+            </div>
+          </div>
+        )}
+      </footer>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .project-detail {
+    max-width: var(--measure);
+  }
+
+  .project-header {
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .project-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .title-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .title-status h1 {
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-size: 0.9375rem;
+    color: var(--muted);
+    margin-bottom: var(--space-1);
+  }
+
+  .role {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .github-link {
+    margin-top: var(--space-2);
+    margin-bottom: 0;
+  }
+
+  .project-content {
+    line-height: var(--lh-body);
+    margin-bottom: var(--space-5);
+  }
+
+  .project-content :global(h2) {
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-2);
+  }
+
+  .project-content :global(img) {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
+    display: block;
+  }
+
+  .project-footer {
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .tag-group h3 {
+    margin: 0 0 var(--space-1) 0;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+</style>

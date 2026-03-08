@@ -1,0 +1,46 @@
+---
+/* =============================================================================
+   PRIVACY NOTICE — Green info bar for privacy/data assurance
+   =============================================================================
+   Displays a green-tinted notice bar assuring visitors about data handling.
+   Used on pages where visitors might share information (contact, etc.).
+
+   How it works on the webpage:
+   - Green background with green border and dark green text
+   - Contains a reassuring message about data privacy
+   - Placed above forms or contact information sections
+
+   Usage: <PrivacyNotice />
+   Or with custom message: <PrivacyNotice message="Your data is safe." />
+
+   Coordinated changes:
+   - Used by: pages/contact.astro
+   ============================================================================= */
+
+interface Props {
+  message?: string;
+}
+
+const { message = 'Your information is never shared or sold. This site does not use tracking cookies.' } = Astro.props;
+---
+
+<aside class="privacy-notice" role="note">
+  <p>{message}</p>
+</aside>
+
+<style>
+  .privacy-notice {
+    padding: var(--space-2);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-3);
+    background: var(--privacy-bg);
+    border: 1px solid var(--privacy-border);
+    color: var(--privacy-text);
+  }
+
+  .privacy-notice p {
+    margin: 0;
+  }
+</style>

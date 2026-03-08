@@ -1,0 +1,38 @@
+---
+/* =============================================================================
+   SEARCH — Pagefind static search component
+   =============================================================================
+   Wraps the astro-pagefind Search component with design-token-based
+   CSS custom properties so the search UI matches the site's visual style.
+
+   How it works on the webpage:
+   - Renders a search input that searches all static pages
+   - Results appear instantly as you type (no server needed)
+   - Pagefind indexes all content at build time via data-pagefind-body
+
+   Future improvement: Add keyboard shortcut (Cmd+K / Ctrl+K) to focus search.
+
+   Coordinated changes:
+   - Not currently used by any page (removed from home page)
+   - Available for future use — import and place on any page
+   - Pagefind re-indexes on every build automatically
+   ============================================================================= */
+
+import PagefindSearch from 'astro-pagefind/components/Search';
+---
+
+<PagefindSearch id="search" className="pagefind-ui" uiOptions={{ showImages: false }} />
+
+<style is:global>
+  /* Override Pagefind UI variables with our design tokens */
+  .pagefind-ui {
+    --pagefind-ui-scale: 1;
+    --pagefind-ui-primary: var(--accent, #2563EB);
+    --pagefind-ui-text: var(--text, #1A1A1A);
+    --pagefind-ui-background: var(--surface, #FFFFFF);
+    --pagefind-ui-border: var(--border, #E0E0E0);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: var(--radius, 6px);
+    --pagefind-ui-font: var(--font-body);
+  }
+</style>

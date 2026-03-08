@@ -1,0 +1,154 @@
+---
+/* =============================================================================
+   CERTIFICATION DETAIL — Individual certification page
+   =============================================================================
+   Renders a single certification's full details from markdown content.
+   Shows vendor, date, verification link, and status badge.
+
+   URL: /certifications/[slug] (one page per cert markdown file)
+
+   Coordinated changes:
+   - Cert content → edit the .md file in src/content/certifications/
+   - Cert frontmatter fields → defined in src/content.config.ts
+     (certifications schema)
+   - Imports: BaseLayout, Breadcrumbs, StatusBadge, ExternalLink, astro:content
+
+   How it works on the webpage:
+   - Breadcrumbs: Home > Certifications > Cert Title
+   - Header with title, vendor, status badge, and date
+   - "Verify Credential" link to Credly or vendor verification
+   - Full markdown content rendered below
+
+   Future improvement: Add cert expiration warning if nearing expiry.
+   ============================================================================= */
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import ExternalLink from '../../components/ExternalLink.astro';
+import { getCollection, render } from 'astro:content';
+
+/* Generate static paths for all certifications at build time */
+export async function getStaticPaths() {
+  const certs = await getCollection('certifications');
+  return certs.map(cert => ({
+    params: { slug: cert.id },
+    props: { cert },
+  }));
+}
+
+const { cert } = Astro.props;
+const { Content } = await render(cert);
+
+/* Map cert slugs to vendor logos */
+const certLogos: Record<string, string> = {
+  'your-cert-slug': '/assets/logos/your-cert-logo.png'  // TODO: Update,
+  // Add more cert logo mappings here,
+};
+const logo = certLogos[cert.id] || '';
+---
+
+<BaseLayout title={cert.data.title}>
+  <Breadcrumbs items={[
+    { label: 'Home', href: '/' },
+    { label: 'Certifications', href: '/certifications' },
+    { label: cert.data.title },
+  ]} />
+
+  <article class="certification">
+    <header>
+      <div class="title-row">
+        {logo && (
+          <img src={logo} alt="" class="cert-logo" width="48" height="48" loading="lazy" />
+        )}
+        <div>
+          <div class="title-inner">
+            <h1>{cert.data.title}</h1>
+            <StatusBadge status={cert.data.status} />
+          </div>
+        </div>
+      </div>
+      {cert.data.vendor && <p class="vendor">{cert.data.vendor}</p>}
+      <time datetime={cert.data.date.toISOString()}>
+        {cert.data.status === 'planned' || cert.data.status === 'in-progress' ? 'Target: ' : 'Achieved: '}
+        {cert.data.date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+        })}
+      </time>
+
+      {cert.data.proof && (
+        <p class="verify">
+          <ExternalLink href={cert.data.proof}>Verify Credential</ExternalLink>
+        </p>
+      )}
+    </header>
+
+    <div class="content measure">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .certification {
+    max-width: var(--measure);
+  }
+
+  header {
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+
+  .cert-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .title-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  .vendor {
+    color: var(--muted);
+    margin: 0 0 var(--space-1) 0;
+  }
+
+  time {
+    display: block;
+    color: var(--muted);
+    font-size: 0.875rem;
+    margin-bottom: var(--space-1);
+  }
+
+  .verify {
+    margin-top: var(--space-2);
+    margin-bottom: 0;
+  }
+
+  .content {
+    line-height: var(--lh-body);
+  }
+</style>

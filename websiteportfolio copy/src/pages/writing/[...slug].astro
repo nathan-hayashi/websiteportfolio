@@ -1,0 +1,66 @@
+---
+/* =============================================================================
+   WRITING POST DETAIL — Individual blog/writing post page
+   =============================================================================
+   Renders a single writing post from its markdown content using the
+   WritingPostLayout. Handles prev/next navigation between posts.
+
+   URL: /writing/[slug] (one page per writing markdown file)
+
+   Coordinated changes:
+   - Post content → edit the .md file in src/content/writing/
+   - Post frontmatter fields → defined in src/content.config.ts (writing schema)
+   - Post page layout (header, tags, nav) → edit src/layouts/WritingPostLayout.astro
+   - Imports: WritingPostLayout, astro:content
+
+   How it works on the webpage:
+   - Uses WritingPostLayout for consistent post page structure
+   - Renders full markdown content
+   - Shows previous/next post links at the bottom
+   - Passes all frontmatter props to the layout
+
+   Future improvement: Add estimated read time calculation if not provided.
+   ============================================================================= */
+
+import WritingPostLayout from '../../layouts/WritingPostLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+/* Generate static paths for all writing posts at build time */
+export async function getStaticPaths() {
+  const posts = await getCollection('writing');
+  /* Sort posts by date for prev/next navigation */
+  const sorted = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  return sorted.map((post, index) => {
+    /* Previous post = newer (index - 1), Next post = older (index + 1) */
+    const prevPost = index > 0
+      ? { slug: sorted[index - 1].id, title: sorted[index - 1].data.title }
+      : undefined;
+    const nextPost = index < sorted.length - 1
+      ? { slug: sorted[index + 1].id, title: sorted[index + 1].data.title }
+      : undefined;
+
+    return {
+      params: { slug: post.id },
+      props: { post, prevPost, nextPost },
+    };
+  });
+}
+
+const { post, prevPost, nextPost } = Astro.props;
+const { Content } = await render(post);
+---
+
+<WritingPostLayout
+  title={post.data.title}
+  description={post.data.description}
+  pubDate={post.data.pubDate}
+  updatedDate={post.data.updatedDate}
+  readTime={post.data.readTime}
+  tags={post.data.tags}
+  disclaimer={post.data.disclaimer}
+  prevPost={prevPost}
+  nextPost={nextPost}
+>
+  <Content />
+</WritingPostLayout>

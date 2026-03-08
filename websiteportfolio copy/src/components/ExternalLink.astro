@@ -1,0 +1,57 @@
+---
+/* =============================================================================
+   EXTERNAL LINK — Link that opens in a new tab with visual indicator
+   =============================================================================
+   Renders an anchor tag with target="_blank" and proper security attributes
+   (noopener noreferrer). Shows a small arrow icon to indicate the link
+   opens in a new window.
+
+   How it works on the webpage:
+   - Looks like a normal link but has a small arrow icon after the text
+   - Opens in a new browser tab when clicked
+   - Screen readers announce "opens in new tab" for accessibility
+   - Security: rel="noopener noreferrer" prevents tab hijacking
+
+   Props:
+   - href: The external URL to link to
+   - class: Optional CSS class name to pass through
+
+   Usage: <ExternalLink href="https://github.com/user">GitHub</ExternalLink>
+
+   Coordinated changes:
+   - Used by: about.astro, resume.astro, certifications/index, certifications/[slug], Footer.astro
+   ============================================================================= */
+
+interface Props {
+  href: string;
+  class?: string;
+}
+
+const { href, class: className } = Astro.props;
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  class={className}
+>
+  <slot />
+  <span class="external-icon" aria-hidden="true">&#8599;</span>
+  <span class="sr-only">(opens in new tab)</span>
+</a>
+
+<style>
+  a {
+    color: var(--accent);
+  }
+
+  a:hover {
+    color: var(--accent-hover);
+  }
+
+  .external-icon {
+    font-size: 0.8em;
+    margin-left: 0.2em;
+  }
+</style>

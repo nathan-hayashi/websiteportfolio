@@ -1,0 +1,45 @@
+---
+/* =============================================================================
+   TAG — Small monospace tag chip for technologies, topics, etc.
+   =============================================================================
+   Renders a compact tag/chip used on project cards, writing posts, and
+   skill listings to display technology names or topic labels.
+
+   How it works on the webpage:
+   - Displays as a small rounded rectangle with monospace font
+   - Light background (#FAFAFA) with subtle border (#E0E0E0)
+   - Used in rows/groups to show multiple tags for a single item
+
+   Props:
+   - label: The text to display inside the tag
+
+   Usage: <Tag label="TypeScript" />
+
+   Coordinated changes:
+   - Used by: CaseStudyCard, ProjectCard, WritingPostLayout, education.astro,
+     writing/index, projects/[slug]
+   ============================================================================= */
+
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<span class="tag">{label}</span>
+
+<style>
+  .tag {
+    display: inline-block;
+    padding: 0.15em 0.55em;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--muted, #5C5C5C);
+    background: var(--bg, #FAFAFA);
+    border: 1px solid var(--border, #E0E0E0);
+    border-radius: var(--radius, 6px);
+    white-space: nowrap;
+  }
+</style>

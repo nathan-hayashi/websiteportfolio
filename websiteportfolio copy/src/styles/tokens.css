@@ -1,0 +1,199 @@
+/* =============================================================================
+   DESIGN TOKENS — Portfolio Design System
+   =============================================================================
+   These CSS custom properties define the visual language for the entire site.
+   Every color, spacing value, font, radius, and shadow used anywhere on the
+   site should reference these tokens — never hardcode hex values in components.
+
+   Source: SVG 13 (design-tokens.svg) from the wireframe kit.
+
+   Coordinated changes:
+   - Changing ANY token here cascades to the entire site (all components, pages)
+   - Adding a token → use it via var(--token-name) in component/page styles
+   - Color changes → verify WCAG AA contrast ratios still pass (see below)
+   - Spacing changes → may affect layout of every page
+   - Imported by: src/styles/global.css (which is imported by BaseLayout)
+
+   WCAG AA Compliance:
+   - Primary text (#1A1A1A) on bg (#FAFAFA) = ~15.3:1 ratio (passes AAA)
+   - Muted text (#5C5C5C) on bg (#FAFAFA) = ~5.9:1 ratio (passes AA)
+   - Accent (#2563EB) on surface (#FFFFFF) = ~4.6:1 ratio (passes AA for large text)
+
+   Future improvement: Add dark mode tokens using prefers-color-scheme media query.
+   ============================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------------------
+     COLOR ROLES
+     Each color has a specific semantic purpose. Use the role name, not the hex.
+     --------------------------------------------------------------------------- */
+
+  /* Page background — the outermost canvas color */
+  --bg: #FAFAFA;
+
+  /* Card/panel surfaces — slightly brighter than bg for depth */
+  --surface: #FFFFFF;
+
+  /* Primary text — used for headings and body copy */
+  --text: #1A1A1A;
+
+  /* Secondary/muted text — used for descriptions, dates, metadata */
+  --muted: #5C5C5C;
+
+  /* Borders — used for card outlines, dividers, table lines */
+  --border: #E0E0E0;
+
+  /* Accent — the single brand color, used sparingly for links and actions */
+  --accent: #2563EB;
+
+  /* Accent hover — slightly darker, used on button/link hover states */
+  --accent-hover: #1D4ED8;
+
+  /* Accent subtle — very light tint for hover backgrounds on accent elements */
+  --accent-subtle: rgba(37, 99, 235, 0.06);
+
+  /* Focus ring — visible outline when keyboard-navigating interactive elements */
+  --focus-ring: #2563EB;
+
+  /* Semantic status colors — used in badges and notices */
+  --success: #16A34A;   /* "Complete", "Active" badges */
+  --warn: #CA8A04;      /* "In Progress", "Draft" badges */
+  --error: #DC2626;     /* Error states (form validation, etc.) */
+
+  /* Badge background tints — subtle fills behind status text */
+  --success-bg: #EFF6FF;  /* Light blue-ish tint for Complete/Active */
+  --warn-bg: #FEFCE8;     /* Light yellow tint for In Progress/Draft */
+  --planned-bg: #FAFAFA;  /* Neutral for Planned */
+
+  /* Notice bar backgrounds */
+  --nda-bg: #FFF7ED;          /* Orange-tinted bg for NDA notices */
+  --nda-border: #FDBA74;      /* Orange border for NDA notices */
+  --nda-text: #9A3412;        /* Dark orange text for NDA notices */
+  --privacy-bg: #F0FDF4;      /* Green-tinted bg for privacy notices */
+  --privacy-border: #BBF7D0;  /* Green border for privacy notices */
+  --privacy-text: #166534;    /* Dark green text for privacy notices */
+
+  /* ---------------------------------------------------------------------------
+     TYPOGRAPHY
+     Body uses system font stack for fast loading (swap to DM Sans later).
+     Code/tags use monospace stack (swap to JetBrains Mono later).
+     --------------------------------------------------------------------------- */
+
+  /* Body font — system-ui loads instantly, no FOIT/FOUT */
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+  /* Monospace font — used for code blocks, tags, technical labels */
+  --font-mono: 'Roboto Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+
+  /* Base body text size — 17px for optimal readability per design spec */
+  --text-body: 1.0625rem;
+
+  /* Line height — 1.6 for comfortable reading of long-form content */
+  --lh-body: 1.6;
+
+  /* Heading line height — tighter for visual hierarchy */
+  --lh-heading: 1.3;
+
+  /* Content measure — max-width for body text to maintain 50-75 char line length.
+     68ch targets ~68 characters per line, within the optimal reading range. */
+  --measure: 68ch;
+
+  /* ---------------------------------------------------------------------------
+     SPACING — 8px Rhythm
+     All spacing decisions use multiples of 8px for visual consistency.
+     Material Design 8dp grid concept. Use var(--space-N) everywhere.
+     --------------------------------------------------------------------------- */
+  --space-1: 0.5rem;    /*  8px — tight gaps, tag padding */
+  --space-2: 1rem;       /* 16px — standard component padding */
+  --space-3: 1.5rem;     /* 24px — section gaps */
+  --space-4: 2rem;       /* 32px — major section margins */
+  --space-5: 2.5rem;     /* 40px — page-level vertical rhythm */
+  --space-6: 3rem;       /* 48px — hero section spacing */
+  --space-7: 3.5rem;     /* 56px — large visual breaks */
+  --space-8: 4rem;       /* 64px — page top/bottom padding */
+
+  /* ---------------------------------------------------------------------------
+     BORDER RADIUS & SHADOWS
+     Consistent rounding and elevation for all card/button surfaces.
+     --------------------------------------------------------------------------- */
+
+  /* Standard radius for cards, buttons, inputs — 6px per design spec */
+  --radius: 6px;
+
+  /* Resting shadow — subtle depth for cards */
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  /* Hover shadow — more pronounced on card hover for interactivity feedback */
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* ---------------------------------------------------------------------------
+     LAYOUT
+     Page-level width constraints and content area sizing.
+     --------------------------------------------------------------------------- */
+
+  /* Max width for the entire page content area */
+  --page-max-width: 1120px;
+
+  /* Horizontal page padding (shrinks on mobile) */
+  --page-padding: var(--space-5);
+
+  /* ---------------------------------------------------------------------------
+     BREAKPOINTS (Reference Only — CSS custom properties can't be used in
+     @media queries, so these are documented here for consistency)
+
+     @sm:  640px  — small tablets, large phones landscape
+     @md:  768px  — tablets
+     @lg:  1024px — small laptops
+     @xl:  1280px — standard desktops
+     @2xl: 1440px — large desktops (matches wireframe canvas width)
+     --------------------------------------------------------------------------- */
+}
+
+/* =============================================================================
+   DARK MODE — Token overrides when [data-theme="dark"] is set on <html>
+   =============================================================================
+   All components use var(--token) references, so they adapt automatically.
+   Toggle is controlled by ThemeToggle component + localStorage persistence.
+
+   WCAG AA Compliance (dark mode):
+   - Primary text (#E8E8E8) on bg (#121212) = ~16:1 ratio (passes AAA)
+   - Muted text (#A0A0A0) on bg (#121212) = ~7:1 ratio (passes AA)
+   - Accent (#60A5FA) on surface (#1E1E1E) = ~5.5:1 ratio (passes AA)
+   ============================================================================= */
+
+[data-theme="dark"] {
+  /* Core colors — inverted for dark backgrounds */
+  --bg: #121212;
+  --surface: #1E1E1E;
+  --text: #E8E8E8;
+  --muted: #A0A0A0;
+  --border: #333333;
+
+  /* Accent — lighter blue for contrast on dark surfaces */
+  --accent: #60A5FA;
+  --accent-hover: #93C5FD;
+  --accent-subtle: rgba(96, 165, 250, 0.12);
+  --focus-ring: #60A5FA;
+
+  /* Semantic status colors — brighter for dark backgrounds */
+  --success: #4ADE80;
+  --warn: #FACC15;
+  --error: #F87171;
+
+  /* Badge background tints — dark-adapted */
+  --success-bg: #1A2332;
+  --warn-bg: #2A2510;
+  --planned-bg: #1E1E1E;
+
+  /* Notice bar backgrounds — dark-adapted */
+  --nda-bg: #2A1F14;
+  --nda-border: #92400E;
+  --nda-text: #FDBA74;
+  --privacy-bg: #14261A;
+  --privacy-border: #166534;
+  --privacy-text: #86EFAC;
+
+  /* Shadows — stronger for visibility on dark backgrounds */
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+}

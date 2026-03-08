@@ -1,0 +1,56 @@
+---
+/* =============================================================================
+   BUTTON GHOST — Text link with arrow, styled as a subtle button
+   =============================================================================
+   Renders a minimal text-style link with a trailing arrow (→). Used for
+   "View all →", "Read more →" type actions that are less prominent.
+
+   How it works on the webpage:
+   - No background or border — just colored text with an arrow
+   - Underlines on hover for affordance
+   - Used at the end of sections to link to full listings
+
+   Props:
+   - href: The URL to navigate to (always renders as <a>)
+
+   Usage: <ButtonGhost href="/writing">View all posts →</ButtonGhost>
+
+   Coordinated changes:
+   - Used by: pages/index.astro, pages/resume.astro
+   ============================================================================= */
+
+interface Props {
+  href: string;
+}
+
+const { href } = Astro.props;
+---
+
+<a href={href} class="btn-ghost">
+  <slot /> <span aria-hidden="true">&rarr;</span>
+</a>
+
+<style>
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    padding: var(--space-1) 0;
+    transition: color 0.15s ease;
+  }
+
+  .btn-ghost:hover {
+    text-decoration: underline;
+    color: var(--accent-hover);
+  }
+
+  .btn-ghost:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+</style>

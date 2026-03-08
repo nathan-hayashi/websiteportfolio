@@ -1,0 +1,201 @@
+---
+/* =============================================================================
+   WRITING POST LAYOUT — Individual blog/writing post page layout
+   =============================================================================
+   Layout for individual writing posts (/writing/[slug]).
+   Used by: pages/writing/[...slug].astro (only consumer)
+
+   Coordinated changes:
+   - Changing props → update pages/writing/[...slug].astro
+   - Adding frontmatter display (e.g., author) → also add field to
+     content.config.ts writing schema
+   - Imports: BaseLayout, Breadcrumbs, Tag, PostNavigation
+
+   Provides:
+   - Breadcrumbs (Home > Writing > Post Title)
+   - Post header (title, date, read time, tags)
+   - Medical disclaimer banner (if applicable)
+   - Article content wrapper
+   - Previous/Next post navigation
+
+   How it works on the webpage:
+   - Breadcrumbs at the top for navigation context
+   - Post title as H1 with publication date and read time below
+   - Optional medical disclaimer for health/nutrition content
+   - Content rendered from markdown with proper typography
+   - Prev/Next links at the bottom to navigate between posts
+
+   Props:
+   - title: Post title (H1 and browser tab)
+   - description: Post summary (meta tag)
+   - pubDate: Publication date
+   - updatedDate: Last update date (optional)
+   - readTime: Estimated read time (optional)
+   - tags: Topic tags (optional)
+   - disclaimer: Whether to show medical disclaimer
+   - prevPost/nextPost: Links for post navigation
+
+   Usage: Used by src/pages/writing/[...slug].astro
+   ============================================================================= */
+
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Tag from '../components/Tag.astro';
+import PostNavigation from '../components/PostNavigation.astro';
+
+interface PostLink {
+  slug: string;
+  title: string;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  readTime?: string;
+  tags?: string[];
+  disclaimer?: boolean;
+  prevPost?: PostLink;
+  nextPost?: PostLink;
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  readTime,
+  tags,
+  disclaimer = false,
+  prevPost,
+  nextPost,
+} = Astro.props;
+
+/* Format dates for display */
+const formattedPubDate = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const formattedUpdatedDate = updatedDate
+  ? updatedDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  : null;
+---
+
+<BaseLayout title={title} description={description}>
+  {/* Breadcrumb trail: Home > Writing > Post Title */}
+  <Breadcrumbs items={[
+    { label: 'Home', href: '/' },
+    { label: 'Writing', href: '/writing' },
+    { label: title },
+  ]} />
+
+  <article class="writing-post">
+    {/* Post header — title, date, read time, tags */}
+    <header class="post-header">
+      <h1>{title}</h1>
+
+      <div class="post-meta">
+        <time datetime={pubDate.toISOString()}>{formattedPubDate}</time>
+        {formattedUpdatedDate && (
+          <span class="updated">Updated {formattedUpdatedDate}</span>
+        )}
+        {readTime && <span class="read-time">{readTime}</span>}
+      </div>
+
+      {/* Topic tags */}
+      {tags && tags.length > 0 && (
+        <div class="post-tags">
+          {tags.map(tag => <Tag label={tag} />)}
+        </div>
+      )}
+    </header>
+
+    {/* Medical disclaimer — shown for health/nutrition content */}
+    {disclaimer && (
+      <aside class="disclaimer" role="alert">
+        <strong>Medical Disclaimer:</strong> The information provided here is for
+        educational purposes only and should not be considered medical advice.
+        Always consult with a qualified healthcare professional before making
+        any changes to your diet or health regimen.
+      </aside>
+    )}
+
+    {/* Post content from markdown */}
+    <div class="post-content measure">
+      <slot />
+    </div>
+
+    {/* Previous/Next post navigation */}
+    <PostNavigation prevPost={prevPost} nextPost={nextPost} />
+  </article>
+</BaseLayout>
+
+<style>
+  .writing-post {
+    max-width: var(--measure);
+  }
+
+  .post-header {
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .post-header h1 {
+    margin: 0 0 var(--space-2) 0;
+    font-size: 2rem;
+    line-height: var(--lh-heading);
+  }
+
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-bottom: var(--space-2);
+  }
+
+  .updated {
+    font-style: italic;
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .disclaimer {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn, #CA8A04);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .post-content {
+    line-height: var(--lh-body);
+  }
+
+  /* Style headings inside post content */
+  .post-content :global(h2) {
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-2);
+  }
+
+  .post-content :global(h3) {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+</style>

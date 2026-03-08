@@ -1,0 +1,298 @@
+---
+/* =============================================================================
+   NAVIGATION — Main site navigation bar
+   =============================================================================
+   The primary navigation shown at the top of every page. Includes:
+   - Logo/domain text (links to home)
+   - 5 main nav links (Home, Work, Projects, Writing, About)
+   - Resume and Contact action buttons
+   - Mobile-responsive hamburger menu using native <details>
+
+   How it works on the webpage:
+   - Desktop: horizontal nav bar with links and action buttons
+   - Mobile: collapses into a hamburger menu using <details>/<summary>
+   - Current page link gets an "active" underline indicator
+   - data-pagefind-ignore prevents search from indexing nav content
+
+   Coordinated changes:
+   - Used by: BaseLayout.astro (appears on every page)
+   - Nav links come from data/site.ts navLinks — edit there, not here
+   - To add a new nav button → add in both desktop .nav-actions AND mobile .mobile-actions
+   ============================================================================= */
+
+import { site } from '../data/site';
+import ThemeToggle from './ThemeToggle.astro';
+
+/* Get the current URL path to highlight the active nav link */
+const currentPath = Astro.url.pathname;
+
+/* Helper to check if a link is active (exact match or starts-with for sub-pages) */
+function isActive(href: string): boolean {
+  if (href === '/') return currentPath === '/';
+  return currentPath === href || currentPath.startsWith(href + '/');
+}
+---
+
+<nav class="site-nav" aria-label="Main navigation" data-pagefind-ignore>
+  <div class="nav-inner">
+    {/* Logo — links to home page */}
+    <a href="/" class="nav-logo" aria-label="Home">
+      {site.domain}
+    </a>
+
+    {/* Desktop navigation links */}
+    <ul class="nav-links" role="list">
+      {site.navLinks.map(link => (
+        <li>
+          <a
+            href={link.href}
+            class:list={[{ active: isActive(link.href) }]}
+            aria-current={isActive(link.href) ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    {/* Theme toggle + action buttons */}
+    <div class="nav-actions">
+      <ThemeToggle />
+      <a href="/resume" class="btn-nav btn-nav-secondary">Resume</a>
+      <a href="/contact" class="btn-nav btn-nav-primary">Contact</a>
+    </div>
+
+    {/* Mobile hamburger menu — uses native <details> for zero JS */}
+    <details class="mobile-menu">
+      <summary aria-label="Menu">
+        <span class="hamburger" aria-hidden="true"></span>
+      </summary>
+      <div class="mobile-menu-content">
+        <ul role="list">
+          {site.navLinks.map(link => (
+            <li>
+              <a
+                href={link.href}
+                class:list={[{ active: isActive(link.href) }]}
+                aria-current={isActive(link.href) ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div class="mobile-actions">
+          <a href="/resume" class="btn-nav btn-nav-secondary">Resume</a>
+          <a href="/contact" class="btn-nav btn-nav-primary">Contact</a>
+          <ThemeToggle />
+        </div>
+      </div>
+    </details>
+  </div>
+</nav>
+
+<style>
+  .site-nav {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--page-max-width);
+    margin: 0 auto;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .nav-logo {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav-logo:hover {
+    color: var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: var(--space-1);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: var(--space-1) var(--space-2);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border-radius: var(--radius);
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  .nav-links a.active {
+    color: var(--accent);
+    position: relative;
+  }
+
+  .nav-links a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: var(--space-2);
+    right: var(--space-2);
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+
+  .nav-actions {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .btn-nav {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+
+  .btn-nav-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-nav-primary:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-nav-secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  .btn-nav-secondary:hover {
+    background: var(--accent-subtle);
+  }
+
+  .btn-nav:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .mobile-menu {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--text);
+    position: relative;
+  }
+
+  .hamburger::before,
+  .hamburger::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: var(--text);
+    left: 0;
+  }
+
+  .hamburger::before { top: -6px; }
+  .hamburger::after { top: 6px; }
+
+  .mobile-menu-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: var(--space-3);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .mobile-menu-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-3) 0;
+  }
+
+  .mobile-menu-content a {
+    display: block;
+    padding: var(--space-1) 0;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 1rem;
+  }
+
+  .mobile-menu-content a.active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .mobile-actions {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border);
+  }
+
+  .mobile-actions .btn-nav {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+
+  summary {
+    list-style: none;
+    cursor: pointer;
+    padding: var(--space-1);
+  }
+
+  summary::-webkit-details-marker { display: none; }
+
+  summary:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+
+  @media (max-width: 768px) {
+    .nav-links,
+    .nav-actions {
+      display: none;
+    }
+
+    .mobile-menu {
+      display: block;
+    }
+  }
+</style>

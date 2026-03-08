@@ -1,0 +1,103 @@
+---
+/* =============================================================================
+   BASE LAYOUT — Root HTML document wrapper for every page
+   =============================================================================
+   This is the outermost layout component. Every page on the site is wrapped
+   in BaseLayout. It provides:
+   - HTML document structure (<html>, <head>, <body>)
+   - Meta tags for SEO (title, description, viewport, charset)
+   - Global CSS import (tokens + reset + utilities)
+   - SkipLink for keyboard accessibility
+   - Navigation bar at the top
+   - Footer at the bottom
+   - Main content area with data-pagefind-body for search indexing
+
+   How it works on the webpage:
+   - Renders the full HTML page with head metadata
+   - SkipLink is the first focusable element (hidden until Tab)
+   - Navigation is sticky at the top of the viewport
+   - <main> receives all page content via <slot>
+   - Footer sits at the bottom with build credits
+
+   Props:
+   - title: Page title shown in the browser tab
+   - description: Meta description for SEO
+
+   Usage: Every page wraps its content in <BaseLayout title="...">
+
+   Coordinated changes:
+   - Changing <head> meta tags → affects SEO for every page
+   - Adding a site-wide banner/component here → appears on every page
+   - Changing main content id → update SkipLink.astro href to match
+   - Imports: global.css, SkipLink, Navigation, Footer
+
+   ADD: To add a site-wide element (e.g., announcement banner), place it
+   between <Navigation /> and <main> in the HTML below.
+   ============================================================================= */
+
+import '../styles/global.css';
+import SkipLink from '../components/SkipLink.astro';
+import Navigation from '../components/Navigation.astro';
+import RoleBar from '../components/RoleBar.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Your Name — Your Professional Title',
+  description = 'Your professional tagline goes here — update in BaseLayout.astro default props.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>{title}</title>
+
+    {/* Theme + role detection — must run before body paint to prevent flash */}
+    <script is:inline>
+      (function() {
+        var t = localStorage.getItem('theme');
+        if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      })();
+      (function() {
+        try {
+          var r = sessionStorage.getItem('visitor-role');
+          if (r) document.documentElement.setAttribute('data-role', r);
+          /* First-visit redirect: send to /gate if no role chosen yet */
+          if (!r && window.location.pathname === '/') {
+            window.location.replace('/gate');
+          }
+        } catch(e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    {/* Skip link — first focusable element for keyboard users */}
+    <SkipLink />
+
+    {/* Sticky navigation bar */}
+    <Navigation />
+
+    {/* Role indicator bar — shows current role with "Change" link */}
+    <RoleBar />
+
+    {/* Main content area — pagefind indexes everything inside here */}
+    <main id="main-content" class="page-content" data-pagefind-body>
+      <slot />
+    </main>
+
+    {/* Site footer with build credits */}
+    <Footer />
+  </body>
+</html>

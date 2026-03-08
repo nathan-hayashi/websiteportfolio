@@ -1,0 +1,142 @@
+---
+/* =============================================================================
+   WRITING INDEX — Listing of all blog/writing posts
+   =============================================================================
+   Displays all published writing posts sorted by date (newest first).
+   Draft posts are shown with a "Draft" badge. Corresponds to SVG 06.
+
+   URL: /writing
+
+   Coordinated changes:
+   - Adding a post → create a new .md file in src/content/writing/
+     (see content.config.ts for required frontmatter fields)
+   - Post list appearance → edit the post-list markup and styles below
+   - Writing schema (adding frontmatter fields) → edit the writing
+     collection in src/content.config.ts
+   - Imports: ContentLayout, StatusBadge, Tag, astro:content
+
+   How it works on the webpage:
+   - Each post shown as a row with title, description, date, and tags
+   - Draft posts visible with a Draft badge (could be filtered in production)
+   - Clicking a row navigates to the full post at /writing/[slug]
+
+   Future improvement: Add tag filtering and year grouping.
+   ============================================================================= */
+
+import ContentLayout from '../../layouts/ContentLayout.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import Tag from '../../components/Tag.astro';
+import { getCollection } from 'astro:content';
+
+/* Fetch all writing posts, sorted newest first */
+const posts = await getCollection('writing');
+const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<ContentLayout
+  title="Writing"
+  description="Blog posts, career reflections, and technical notes."
+  breadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'Writing' },
+  ]}
+>
+  {sortedPosts.length === 0 ? (
+    <p class="text-muted">Posts coming soon!</p>
+  ) : (
+    <ul class="post-list">
+      {sortedPosts.map(post => (
+        <li>
+          <a href={`/writing/${post.id}`}>
+            <div class="post-header">
+              <h2>{post.data.title}</h2>
+              {post.data.draft && <StatusBadge status="draft" />}
+            </div>
+            {post.data.description && (
+              <p class="post-desc">{post.data.description}</p>
+            )}
+            <div class="post-meta">
+              <time datetime={post.data.pubDate.toISOString()}>
+                {post.data.pubDate.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </time>
+              {post.data.readTime && (
+                <span class="read-time">{post.data.readTime}</span>
+              )}
+            </div>
+            {post.data.tags && post.data.tags.length > 0 && (
+              <div class="post-tags">
+                {post.data.tags.map(tag => <Tag label={tag} />)}
+              </div>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</ContentLayout>
+
+<style>
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .post-list li {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .post-list a {
+    display: block;
+    padding: var(--space-3) 0;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.15s ease;
+  }
+
+  .post-list a:hover {
+    background: var(--bg);
+    margin: 0 calc(-1 * var(--space-2));
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+    border-radius: var(--radius);
+  }
+
+  .post-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+
+  .post-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: var(--lh-heading);
+  }
+
+  .post-desc {
+    margin: 0 0 var(--space-1) 0;
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .post-meta {
+    display: flex;
+    gap: var(--space-2);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-bottom: var(--space-1);
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+</style>

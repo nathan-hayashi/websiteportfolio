@@ -1,0 +1,138 @@
+---
+/* =============================================================================
+   SKILLS PAGE — Technical skills organized by category
+   =============================================================================
+   Displays all skills grouped into category cards. Each card shows the
+   category title, description, and individual skills with proficiency
+   indicators. Corresponds to SVG 12.
+
+   URL: /skills
+
+   Coordinated changes:
+   - Adding/editing skills → edit src/data/skills.ts (auto-read here)
+   - Adding a new skill category → add object to skillCategories array
+     in src/data/skills.ts
+   - Adding a new proficiency level beyond strong/proficient/familiar →
+     also add a .level-[name] CSS class in the style block below
+   - Imports: ContentLayout, skills data
+
+   How it works on the webpage:
+   - Skills organized into card-based categories (IAM, Cloud, Automation, etc.)
+   - Each skill has a proficiency indicator (strong/proficient/familiar)
+   - Clean grid layout with responsive breakpoints
+
+   Future improvement: Add skill search/filter functionality.
+   ============================================================================= */
+
+import ContentLayout from '../layouts/ContentLayout.astro';
+import { skillCategories } from '../data/skills';
+---
+
+<ContentLayout
+  title="Skills"
+  description="Technical skills and proficiency levels across IAM, cloud, automation, and security."
+  breadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'Skills' },
+  ]}
+  audience="Recruiters & Hiring Managers"
+>
+  <div class="skills-grid">
+    {skillCategories.map(category => (
+      <div class="skill-card">
+        <h2>{category.title}</h2>
+        <p class="card-desc">{category.description}</p>
+        <ul class="skill-list">
+          {category.skills.map(skill => (
+            <li class="skill-item">
+              <span class="skill-name">{skill.name}</span>
+              <span class:list={['skill-level', `level-${skill.level}`]}>
+                {skill.level}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</ContentLayout>
+
+<style>
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .skill-card {
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .skill-card h2 {
+    margin: 0 0 var(--space-1) 0;
+    font-size: 1.125rem;
+  }
+
+  .card-desc {
+    margin: 0 0 var(--space-3) 0;
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: var(--lh-body);
+  }
+
+  .skill-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .skill-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-1) 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9375rem;
+  }
+
+  .skill-item:last-child {
+    border-bottom: none;
+  }
+
+  .skill-name {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .skill-level {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    padding: 0.15em 0.5em;
+    border-radius: 999px;
+    white-space: nowrap;
+    text-transform: capitalize;
+  }
+
+  /* Proficiency level colors */
+  .level-strong {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success);
+  }
+
+  .level-proficient {
+    background: #EFF6FF;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  .level-familiar {
+    background: var(--planned-bg);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+</style>

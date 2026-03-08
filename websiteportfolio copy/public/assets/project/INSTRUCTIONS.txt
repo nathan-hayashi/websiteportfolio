@@ -1,0 +1,41 @@
+================================================================================
+PROJECT ASSETS FOLDER — Supporting Documents and Images for Projects
+================================================================================
+
+PURPOSE:
+  Store PDFs, diagrams, images, and other supporting files that are
+  linked from your project case study markdown files or blog posts.
+
+HOW TO ADD PROJECT ASSETS:
+  1. Place your file here (PDF, PNG, JPG, SVG, etc.)
+  2. Reference it in your markdown using absolute paths:
+     - [Download My Document (PDF)](/assets/project/your-document.pdf)
+     - ![Diagram description](/assets/project/your-diagram.png)
+
+EXAMPLES OF WHAT TO PUT HERE:
+  - Architecture diagrams
+  - Flow charts / site maps
+  - Comparison matrices or decision documents
+  - Research papers or thesis documents
+  - Screenshots of your work (with sensitive data redacted)
+
+LINKING FROM MARKDOWN:
+  In any .md file (projects, writing, etc.):
+
+  For downloadable files:
+    **[Download the Document (PDF)](/assets/project/filename.pdf)**
+
+  For inline images:
+    ![Alt text describing the image](/assets/project/image.png)
+
+  Images in project pages automatically get styled with borders and
+  rounded corners via the .project-content :global(img) CSS rule.
+
+AI PROMPT FOR DIAGRAMS:
+  "Create a text description of a system architecture diagram for
+   [your project]. Include the main components, data flow arrows,
+   and which services connect to which."
+  Then use a tool like draw.io, Excalidraw, or Mermaid to create it.
+
+NOTE: Files in public/ are served as-is at the root URL.
+      /assets/project/my-file.pdf → https://yourdomain.com/assets/project/my-file.pdf

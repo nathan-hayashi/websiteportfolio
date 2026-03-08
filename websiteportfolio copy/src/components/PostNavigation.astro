@@ -1,0 +1,112 @@
+---
+/* =============================================================================
+   POST NAVIGATION — Previous/Next links for writing posts
+   =============================================================================
+   Renders "← Previous Post" and "Next Post →" navigation links at the
+   bottom of individual writing post pages.
+
+   How it works on the webpage:
+   - Two links side by side at the bottom of a post
+   - Left side: previous post (older), right side: next post (newer)
+   - If no previous or next exists, that side is left empty
+   - Shows the post title as the link text
+
+   Props:
+   - prevPost: { slug, title } of the previous post (optional)
+   - nextPost: { slug, title } of the next post (optional)
+
+   Usage:
+   <PostNavigation
+     prevPost={{ slug: 'old-post', title: 'My Old Post' }}
+     nextPost={{ slug: 'new-post', title: 'My New Post' }}
+   />
+
+   Coordinated changes:
+   - Used by: WritingPostLayout.astro (prev/next links on writing posts)
+   ============================================================================= */
+
+interface PostLink {
+  slug: string;
+  title: string;
+}
+
+interface Props {
+  prevPost?: PostLink;
+  nextPost?: PostLink;
+}
+
+const { prevPost, nextPost } = Astro.props;
+---
+
+{(prevPost || nextPost) && (
+  <nav aria-label="Post navigation" class="post-nav">
+    <div class="prev">
+      {prevPost && (
+        <a href={`/writing/${prevPost.slug}`}>
+          <span class="label">&larr; Previous</span>
+          <span class="title">{prevPost.title}</span>
+        </a>
+      )}
+    </div>
+    <div class="next">
+      {nextPost && (
+        <a href={`/writing/${nextPost.slug}`}>
+          <span class="label">Next &rarr;</span>
+          <span class="title">{nextPost.title}</span>
+        </a>
+      )}
+    </div>
+  </nav>
+)}
+
+<style>
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+  }
+
+  .prev, .next {
+    min-width: 0;
+  }
+
+  .next {
+    text-align: right;
+  }
+
+  a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  a:hover .title {
+    color: var(--accent);
+  }
+
+  a:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+
+  .label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+
+  .title {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: var(--lh-heading);
+    transition: color 0.15s ease;
+  }
+</style>

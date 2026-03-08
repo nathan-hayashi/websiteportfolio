@@ -1,0 +1,76 @@
+---
+/* =============================================================================
+   CONTENT LAYOUT — Section page layout with breadcrumbs and TL;DR panel
+   =============================================================================
+   Wraps BaseLayout and adds:
+   - Breadcrumbs navigation trail
+   - TL;DR panel (title, description, audience, read time)
+   - Constrained content width via .measure class
+
+   Used by: about, contact, education, resume, skills, work,
+   writing/index, projects/index, certifications/index
+
+   Coordinated changes:
+   - Changing props here → update all 9 pages listed above
+   - Adding a new section/slot → all ContentLayout pages can optionally use it
+   - Imports: BaseLayout, Breadcrumbs, TldrPanel
+
+   How it works on the webpage:
+   - Breadcrumbs at the top show path (e.g., Home > Projects)
+   - TL;DR panel shows the page title and description
+   - Content below is constrained to readable width (68ch)
+
+   Props:
+   - title: Page title (used in browser tab and TL;DR panel H1)
+   - description: Brief page summary (TL;DR panel and meta tag)
+   - breadcrumbs: Array of { label, href? } for the breadcrumb trail
+   - audience: Optional audience tag (e.g., "Hiring Managers")
+   - readTime: Optional read time estimate
+
+   Usage:
+   <ContentLayout
+     title="Projects"
+     description="Technical case studies."
+     breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Projects' }]}
+   >
+     <p>Page content here...</p>
+   </ContentLayout>
+   ============================================================================= */
+
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import TldrPanel from '../components/TldrPanel.astro';
+
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  breadcrumbs: BreadcrumbItem[];
+  audience?: string;
+  readTime?: string;
+}
+
+const { title, description, breadcrumbs, audience, readTime } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  {/* Navigation trail */}
+  <Breadcrumbs items={breadcrumbs} />
+
+  {/* Page header with title and summary */}
+  <TldrPanel
+    title={title}
+    description={description}
+    audience={audience}
+    readTime={readTime}
+  />
+
+  {/* Page content — constrained to readable width */}
+  <div class="measure">
+    <slot />
+  </div>
+</BaseLayout>

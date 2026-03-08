@@ -1,0 +1,75 @@
+---
+/* =============================================================================
+   CATEGORY TILE — Compact navigation tile for the home page grid
+   =============================================================================
+   A small clickable tile used in the 6-tile grid on the home page.
+   Each tile represents a section of the site (Work, Projects, Skills, etc.).
+
+   How it works on the webpage:
+   - Shows section title and a brief 2-3 word description
+   - Entire tile is a clickable link to the section page
+   - Arranged in a responsive grid (3 columns on desktop, 2 on tablet, 1 on mobile)
+   - Subtle hover lift effect
+
+   Props:
+   - title: Section name (e.g., "Projects")
+   - href: URL to navigate to (e.g., "/projects")
+   - description: Brief tagline (e.g., "Architecture + outcomes")
+
+   Usage: <CategoryTile title="Projects" href="/projects" description="Architecture + outcomes" />
+
+   Coordinated changes:
+   - Used by: pages/index.astro (tile data comes from data/site.ts categoryTiles)
+   - To add/reorder tiles → edit data/site.ts categoryTiles array, not this file
+   ============================================================================= */
+
+interface Props {
+  title: string;
+  href: string;
+  description: string;
+}
+
+const { title, href, description } = Astro.props;
+---
+
+<a href={href} class="tile" data-tile-href={href}>
+  <span class="tile-title">{title}</span>
+  <span class="tile-desc">{description}</span>
+</a>
+
+<style>
+  .tile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .tile:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  .tile:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .tile-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .tile-desc {
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+</style>

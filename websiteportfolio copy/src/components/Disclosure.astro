@@ -1,0 +1,94 @@
+---
+/* =============================================================================
+   DISCLOSURE — Native <details>/<summary> accordion (zero JavaScript)
+   =============================================================================
+   An expandable section using the native HTML <details> element. This provides
+   accordion/collapsible behavior with zero JavaScript — the browser handles
+   open/close state natively.
+
+   How it works on the webpage:
+   - Displays a clickable summary heading with a triangle indicator
+   - Clicking toggles the hidden content open/closed
+   - Accessible by default (keyboard operable, screen reader friendly)
+   - Used for case studies, FAQ sections, expandable details
+
+   Props:
+   - summary: The visible heading text shown when collapsed
+   - open (optional): Whether the disclosure starts expanded
+
+   Usage:
+   <Disclosure summary="Case Study: Auth Rollout">
+     <p>Detailed content here...</p>
+   </Disclosure>
+
+   Coordinated changes:
+   - Used by: CaseStudyCard.astro
+   - This is a generic component — can be used anywhere you need expand/collapse
+   ============================================================================= */
+
+interface Props {
+  summary: string;
+  open?: boolean;
+}
+
+const { summary, open = false } = Astro.props;
+---
+
+<details class="disclosure" open={open}>
+  <summary>{summary}</summary>
+  <div class="disclosure-content">
+    <slot />
+  </div>
+</details>
+
+<style>
+  .disclosure {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: var(--space-2);
+  }
+
+  summary {
+    padding: var(--space-2) var(--space-3);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    user-select: none;
+  }
+
+  /* Custom triangle indicator using CSS */
+  summary::before {
+    content: '▸';
+    font-size: 0.875rem;
+    transition: transform 0.15s ease;
+  }
+
+  /* Rotate triangle when open */
+  details[open] > summary::before {
+    transform: rotate(90deg);
+  }
+
+  /* Remove default browser marker */
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary:hover {
+    color: var(--accent);
+  }
+
+  summary:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+    border-radius: var(--radius);
+  }
+
+  .disclosure-content {
+    padding: 0 var(--space-3) var(--space-3);
+    line-height: var(--lh-body);
+  }
+</style>

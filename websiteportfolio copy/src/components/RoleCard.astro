@@ -1,0 +1,84 @@
+---
+/* =============================================================================
+   ROLE CARD — Card for the /gate role selection page
+   =============================================================================
+   A large clickable card on the role gate page where visitors identify
+   themselves (Recruiter, Hiring Manager, Visitor/Peer). Each card stores
+   the selected role in sessionStorage and navigates to the home page.
+
+   How it works on the webpage:
+   - Three cards displayed in a row on the /gate page
+   - Each card has a title, description, and icon
+   - Clicking sets sessionStorage('visitor-role', role) then navigates to /
+   - The rest of the site can optionally read this for progressive enhancement
+
+   Props:
+   - title: Role name (e.g., "Recruiter")
+   - description: What this person is looking for
+   - href: Where to navigate (always "/" for now)
+   - role: The sessionStorage value to set
+
+   Usage:
+   <RoleCard
+     title="Recruiter"
+     description="Quick overview of skills, experience, and credentials."
+     href="/"
+     role="recruiter"
+   />
+
+   Coordinated changes:
+   - Used by: pages/gate.astro
+   ============================================================================= */
+
+interface Props {
+  title: string;
+  description: string;
+  href: string;
+  role: string;
+}
+
+const { title, description, href, role } = Astro.props;
+---
+
+<a href={href} class="role-card" data-role={role}>
+  <span class="role-title">{title}</span>
+  <span class="role-desc">{description}</span>
+</a>
+
+<style>
+  .role-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: inherit;
+    text-align: center;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .role-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .role-card:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .role-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .role-desc {
+    font-size: 0.9375rem;
+    color: var(--muted);
+    line-height: var(--lh-body);
+  }
+</style>

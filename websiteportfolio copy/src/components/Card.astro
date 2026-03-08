@@ -1,0 +1,74 @@
+---
+/* =============================================================================
+   CARD — General-purpose white surface card with border and shadow
+   =============================================================================
+   A reusable container component that wraps content in a white card with
+   subtle border and shadow. Used as the base for ProjectCard, RoleCard, etc.
+
+   How it works on the webpage:
+   - White background surface with 1px border and soft shadow
+   - Slight shadow increase on hover for interactive feel
+   - Content is passed via the default <slot>
+
+   Props:
+   - href (optional): If provided, wraps the card in an <a> tag for clickability
+   - padding (optional): Override default padding ("compact" | "normal")
+
+   Usage:
+   <Card><h2>Title</h2><p>Content</p></Card>
+   <Card href="/projects/my-project">Clickable card</Card>
+
+   Coordinated changes:
+   - Not currently used directly (ProjectCard and others have their own card styling)
+   - Available as a generic wrapper for future sections
+   ============================================================================= */
+
+interface Props {
+  href?: string;
+  padding?: 'compact' | 'normal';
+}
+
+const { href, padding = 'normal' } = Astro.props;
+const paddingClass = padding === 'compact' ? 'card-compact' : '';
+---
+
+{href ? (
+  <a href={href} class:list={['card', 'card-link', paddingClass]}>
+    <slot />
+  </a>
+) : (
+  <div class:list={['card', paddingClass]}>
+    <slot />
+  </div>
+)}
+
+<style>
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--space-3);
+    transition: box-shadow 0.15s ease;
+  }
+
+  .card-compact {
+    padding: var(--space-2);
+  }
+
+  /* When card is a link, add hover effect and remove link styling */
+  .card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-link:hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  .card-link:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+</style>

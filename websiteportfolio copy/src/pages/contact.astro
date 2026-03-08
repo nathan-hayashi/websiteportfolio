@@ -1,0 +1,87 @@
+---
+/* =============================================================================
+   CONTACT PAGE — Email, social links, and privacy assurance
+   =============================================================================
+   Shows contact information with a privacy notice. Corresponds to SVG 08.
+   The existing /api/contact endpoint remains available for programmatic use.
+
+   URL: /contact
+
+   Coordinated changes:
+   - Email address and social links → edit site.links in src/data/site.ts
+   - Privacy notice text → edit src/components/PrivacyNotice.astro
+   - Contact form backend → functions/api/contact.js (Cloudflare Pages Function)
+   - Imports: ContentLayout, ExternalLink, PrivacyNotice, site data
+
+   How it works on the webpage:
+   - Privacy notice bar at the top for trust
+   - Email address displayed prominently
+   - Links to LinkedIn and GitHub
+   - Clean, minimal layout
+
+   Future improvement: Add a contact form using the existing /api/contact
+   Cloudflare Pages Function with Turnstile bot protection.
+   ============================================================================= */
+
+import ContentLayout from '../layouts/ContentLayout.astro';
+import ExternalLink from '../components/ExternalLink.astro';
+import PrivacyNotice from '../components/PrivacyNotice.astro';
+import { site } from '../data/site';
+---
+
+<ContentLayout
+  title="Contact"
+  description="Get in touch via email or social links."
+  breadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'Contact' },
+  ]}
+>
+  <PrivacyNotice />
+
+  <section class="contact-info">
+    <h2>Email</h2>
+    <p>
+      <a href={`mailto:${site.links.email}`} class="email-link">
+        {site.links.email}
+      </a>
+    </p>
+  </section>
+
+  <section class="social-links">
+    <h2>Elsewhere</h2>
+    <ul class="links-list">
+      <li>
+        <ExternalLink href={site.links.linkedin}>LinkedIn</ExternalLink>
+      </li>
+      <li>
+        <ExternalLink href={site.links.github}>GitHub</ExternalLink>
+      </li>
+    </ul>
+  </section>
+</ContentLayout>
+
+<style>
+  section {
+    margin-bottom: var(--space-5);
+  }
+
+  h2 {
+    margin-bottom: var(--space-2);
+  }
+
+  .email-link {
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+
+  .links-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .links-list li {
+    margin-bottom: var(--space-1);
+    font-size: 1rem;
+  }
+</style>

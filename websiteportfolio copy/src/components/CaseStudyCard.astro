@@ -1,0 +1,102 @@
+---
+/* =============================================================================
+   CASE STUDY CARD — Expandable case study wrapping the Disclosure component
+   =============================================================================
+   A structured case study presentation using Problem → Approach → Outcome
+   format. Wraps the Disclosure component for expand/collapse behavior.
+
+   How it works on the webpage:
+   - Displays as a collapsible section within a timeline entry
+   - When expanded, shows three sections: Problem, Approach, Outcome
+   - Technology tags shown at the bottom
+   - Zero JavaScript — uses native <details> via Disclosure component
+
+   Props:
+   - title: Case study heading
+   - problem: The business problem or challenge
+   - approach: How the problem was solved
+   - outcome: Measurable results or impact
+   - technologies: Tech stack used (rendered as Tag chips)
+
+   Usage:
+   <CaseStudyCard
+     title="Auth Rollout"
+     problem="Legacy passwords..."
+     approach="Phased deployment..."
+     outcome="1000+ users migrated..."
+     technologies={['Azure AD', 'FIDO2']}
+   />
+
+   Coordinated changes:
+   - Used by: pages/work.astro (inside TimelineEntry slots)
+   - Imports: Disclosure, Tag
+   ============================================================================= */
+
+import Disclosure from './Disclosure.astro';
+import Tag from './Tag.astro';
+
+interface Props {
+  title: string;
+  problem: string;
+  approach: string;
+  outcome: string;
+  technologies: string[];
+}
+
+const { title, problem, approach, outcome, technologies } = Astro.props;
+---
+
+<Disclosure summary={`Case Study: ${title}`}>
+  <div class="case-study">
+    <div class="section">
+      <h4>Problem</h4>
+      <p>{problem}</p>
+    </div>
+
+    <div class="section">
+      <h4>Approach</h4>
+      <p>{approach}</p>
+    </div>
+
+    <div class="section">
+      <h4>Outcome</h4>
+      <p>{outcome}</p>
+    </div>
+
+    {technologies.length > 0 && (
+      <div class="tags">
+        {technologies.map(tech => <Tag label={tech} />)}
+      </div>
+    )}
+  </div>
+</Disclosure>
+
+<style>
+  .case-study {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .section h4 {
+    margin: 0 0 var(--space-1) 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+
+  .section p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: var(--lh-body);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    padding-top: var(--space-1);
+  }
+</style>

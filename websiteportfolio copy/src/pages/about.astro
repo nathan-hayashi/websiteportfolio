@@ -1,0 +1,101 @@
+---
+/* =============================================================================
+   ABOUT PAGE — Personal biography and background
+   =============================================================================
+   A personal page with biography, interests, and links to social profiles.
+   Corresponds to SVG 07 in the wireframe set.
+
+   URL: /about
+
+   Coordinated changes:
+   - Social links (GitHub, LinkedIn, email) → edit site.links in src/data/site.ts
+   - Name and employer references → edit site.name / site.employer in
+     src/data/site.ts
+   - Biography text → edit directly in the section class="bio" below
+   - Interests text → edit directly in the section class="interests" below
+   - Imports: ContentLayout, ExternalLink, site data
+
+   How it works on the webpage:
+   - Short biography section with professional background
+   - Links to GitHub, LinkedIn, and email
+   - Clean, readable layout with constrained width
+
+   Future improvement: Add a photo/avatar section.
+   ============================================================================= */
+
+import ContentLayout from '../layouts/ContentLayout.astro';
+import ExternalLink from '../components/ExternalLink.astro';
+import { site } from '../data/site';
+---
+
+<ContentLayout
+  title="About"
+  description="Background, interests, and how to connect."
+  breadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'About' },
+  ]}
+>
+  <section class="bio">
+    <h2>Background</h2>
+    <p>
+      I'm {site.name}, an aspiring cloud security and IAM engineer based in the
+      Greater Seattle Area. I graduated from the University of Washington Bothell
+      with a degree in Management Information Systems, and I'm currently
+      working at {site.employer} on identity and access management.
+    </p>
+    <p>
+      My focus is on building secure, scalable identity systems ranging from
+      passwordless authentication rollouts to automated lifecycle management.
+      I believe that strong identity controls are the foundation of modern
+      cloud security.
+    </p>
+  </section>
+
+  <section class="interests">
+    <h2>Interests</h2>
+    <p>
+      Outside of work, I'm interested in using AI agents and exploring the wild west of AGI. I also enjoy learning
+      through hands-on projects and documenting what I learn along the way. 
+    </p>
+  </section>
+
+  <section class="connect">
+    <h2>Connect</h2>
+    <ul class="links-list">
+      <li>
+        <ExternalLink href={site.links.github}>GitHub</ExternalLink>
+      </li>
+      <li>
+        <ExternalLink href={site.links.linkedin}>LinkedIn</ExternalLink>
+      </li>
+      <li>
+        <a href={`mailto:${site.links.email}`}>{site.links.email}</a>
+      </li>
+    </ul>
+  </section>
+</ContentLayout>
+
+<style>
+  section {
+    margin-bottom: var(--space-5);
+  }
+
+  h2 {
+    margin-bottom: var(--space-2);
+  }
+
+  p {
+    line-height: var(--lh-body);
+    margin-bottom: var(--space-2);
+  }
+
+  .links-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .links-list li {
+    margin-bottom: var(--space-1);
+  }
+</style>

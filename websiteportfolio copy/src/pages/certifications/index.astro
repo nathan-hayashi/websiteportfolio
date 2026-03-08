@@ -1,0 +1,243 @@
+---
+/* =============================================================================
+   CERTIFICATIONS INDEX — Professional credentials grouped by status
+   =============================================================================
+   Displays all certifications organized into sections by status:
+   Active, In Progress / Planned, and Expired. Corresponds to SVG 09.
+
+   URL: /certifications
+
+   Coordinated changes:
+   - Adding a certification → create a new .md file in src/content/certifications/
+     (see content.config.ts for required frontmatter fields)
+   - Cert schema (adding frontmatter fields) → edit the certifications
+     collection in src/content.config.ts
+   - Status grouping logic → edit the filter blocks in the frontmatter above
+   - Imports: ContentLayout, StatusBadge, ExternalLink, astro:content
+
+   How it works on the webpage:
+   - Certs grouped into colored sections (Active=green, Planned=yellow, etc.)
+   - Each cert shows title, vendor, date, and optional "Verify Credential" link
+   - Cards link to individual cert detail pages for full writeup
+   - Status badges indicate cert state
+
+   Future improvement: Add cert expiration countdown for certs nearing renewal.
+   ============================================================================= */
+
+import ContentLayout from '../../layouts/ContentLayout.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import ExternalLink from '../../components/ExternalLink.astro';
+import { getCollection } from 'astro:content';
+
+/* Fetch all certs and group by status */
+const certs = await getCollection('certifications');
+const sortedCerts = certs.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+/* Map cert slugs to vendor logos */
+const certLogos: Record<string, string> = {
+  'your-cert-slug': '/assets/logos/your-cert-logo.png'  // TODO: Update with your cert slug and logo,
+  // Add more cert logo mappings here as needed,
+};
+
+/* Group certs by status for sectioned display */
+const activeCerts = sortedCerts.filter(c => c.data.status === 'active');
+const inProgressCerts = sortedCerts.filter(c => c.data.status === 'in-progress' || c.data.status === 'planned');
+const expiredCerts = sortedCerts.filter(c => c.data.status === 'expired');
+---
+
+<ContentLayout
+  title="Certifications"
+  description="Professional certifications and credentials."
+  breadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'Certifications' },
+  ]}
+>
+  {sortedCerts.length === 0 ? (
+    <p class="text-muted">Certifications coming soon!</p>
+  ) : (
+    <>
+      {/* Active Certifications */}
+      {activeCerts.length > 0 && (
+        <section class="cert-section">
+          <h2>Active</h2>
+          <ul class="cert-list">
+            {activeCerts.map(cert => (
+              <li class="cert-card">
+                <a href={`/certifications/${cert.id}`}>
+                  <div class="cert-row">
+                    {certLogos[cert.id] && (
+                      <img src={certLogos[cert.id]} alt="" class="cert-logo" width="48" height="48" loading="lazy" />
+                    )}
+                    <div>
+                      <div class="cert-header">
+                        <h3>{cert.data.title}</h3>
+                        <StatusBadge status="active" />
+                      </div>
+                      {cert.data.vendor && <p class="vendor">{cert.data.vendor}</p>}
+                      <time datetime={cert.data.date.toISOString()}>
+                        Achieved: {cert.data.date.toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                        })}
+                      </time>
+                    </div>
+                  </div>
+                </a>
+                {cert.data.proof && (
+                  <ExternalLink href={cert.data.proof} class="verify-link">
+                    Verify Credential
+                  </ExternalLink>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Planned / In Progress Certifications */}
+      {inProgressCerts.length > 0 && (
+        <section class="cert-section">
+          <h2>Planned / In Progress</h2>
+          <ul class="cert-list">
+            {inProgressCerts.map(cert => (
+              <li class="cert-card">
+                <a href={`/certifications/${cert.id}`}>
+                  <div class="cert-row">
+                    {certLogos[cert.id] && (
+                      <img src={certLogos[cert.id]} alt="" class="cert-logo" width="48" height="48" loading="lazy" />
+                    )}
+                    <div>
+                      <div class="cert-header">
+                        <h3>{cert.data.title}</h3>
+                        <StatusBadge status={cert.data.status} />
+                      </div>
+                      {cert.data.vendor && <p class="vendor">{cert.data.vendor}</p>}
+                      <time datetime={cert.data.date.toISOString()}>
+                        Target: {cert.data.date.toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                        })}
+                      </time>
+                    </div>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Expired Certifications */}
+      {expiredCerts.length > 0 && (
+        <section class="cert-section">
+          <h2>Expired</h2>
+          <ul class="cert-list">
+            {expiredCerts.map(cert => (
+              <li class="cert-card">
+                <a href={`/certifications/${cert.id}`}>
+                  <div class="cert-row">
+                    {certLogos[cert.id] && (
+                      <img src={certLogos[cert.id]} alt="" class="cert-logo" width="48" height="48" loading="lazy" />
+                    )}
+                    <div>
+                      <div class="cert-header">
+                        <h3>{cert.data.title}</h3>
+                        <StatusBadge status="expired" />
+                      </div>
+                      {cert.data.vendor && <p class="vendor">{cert.data.vendor}</p>}
+                    </div>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </>
+  )}
+</ContentLayout>
+
+<style>
+  .cert-section {
+    margin-bottom: var(--space-5);
+  }
+
+  .cert-section h2 {
+    margin-bottom: var(--space-3);
+    font-size: 1.25rem;
+  }
+
+  .cert-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .cert-card {
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: var(--space-2);
+    box-shadow: var(--shadow);
+  }
+
+  .cert-card a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .cert-card a:hover h3 {
+    color: var(--accent);
+  }
+
+  .cert-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .cert-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .cert-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+
+  .cert-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    transition: color 0.15s ease;
+  }
+
+  .vendor {
+    margin: 0 0 var(--space-1) 0;
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  time {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .verify-link {
+    display: inline-block;
+    margin-top: var(--space-2);
+    font-size: 0.875rem;
+  }
+</style>

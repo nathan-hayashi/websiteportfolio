@@ -1,0 +1,50 @@
+---
+/* =============================================================================
+   SKIP LINK — Accessibility skip-to-content link (WCAG 2.1 requirement)
+   =============================================================================
+   This hidden link becomes visible when a keyboard user presses Tab on page
+   load. It jumps focus directly to the <main id="main-content"> element,
+   skipping the navigation. Every page includes this via BaseLayout.
+
+   How it works on the webpage:
+   - Invisible by default (positioned off-screen with .sr-only styles)
+   - On :focus (Tab key), it slides into view at the top of the page
+   - Clicking it moves focus to #main-content, skipping the nav bar
+
+   Future improvement: Add smooth scroll behavior if desired.
+
+   Coordinated changes:
+   - Used by: BaseLayout.astro (first element on every page)
+   - If you change the target id → update BaseLayout main element id to match
+   ============================================================================= */
+---
+
+<a href="#main-content" class="skip-link">
+  Skip to main content
+</a>
+
+<style>
+  /* Visually hidden until focused — uses the .sr-only pattern but overrides
+     on :focus to make it visible and prominent at the top of the page */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--space-2);
+    z-index: 1000;
+    padding: var(--space-1) var(--space-2);
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: top 0.15s ease;
+  }
+
+  /* When the user tabs to this link, slide it into view */
+  .skip-link:focus {
+    top: var(--space-1);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+</style>

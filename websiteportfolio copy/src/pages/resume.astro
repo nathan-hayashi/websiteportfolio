@@ -1,0 +1,213 @@
+---
+/* =============================================================================
+   RESUME PAGE — Download link and inline resume preview
+   =============================================================================
+   Provides a downloadable PDF resume link and an inline summary of
+   key qualifications. Corresponds to SVG 10.
+
+   URL: /resume
+
+   Coordinated changes:
+   - Experience entries → auto-read from src/data/work.ts
+   - Education info → auto-read from src/data/education.ts
+   - Role/employer in summary → reads site.role / site.employer from
+     src/data/site.ts
+   - Social links → reads site.links from src/data/site.ts
+   - PDF file → place resume.pdf in public/ directory
+   - Certifications list → edit directly in the Certifications section below
+   - Imports: ContentLayout, ButtonPrimary, ButtonGhost, ExternalLink,
+     site data, work data, education data
+
+   How it works on the webpage:
+   - Download button for the PDF resume at the top
+   - Inline summary sections: Summary, Experience, Education, Skills, Certs
+   - Links to detailed pages for more info on each section
+
+   Future improvement: Add inline PDF viewer using <iframe> or <object> tag
+   once resume.pdf is uploaded to public/ directory.
+   ============================================================================= */
+
+import ContentLayout from '../layouts/ContentLayout.astro';
+import ButtonPrimary from '../components/ButtonPrimary.astro';
+import ButtonGhost from '../components/ButtonGhost.astro';
+import ExternalLink from '../components/ExternalLink.astro';
+import { site } from '../data/site';
+import { workExperience } from '../data/work';
+import { education } from '../data/education';
+---
+
+<ContentLayout
+  title="Resume"
+  description="Download resume or view inline summary."
+  breadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'Resume' },
+  ]}
+  audience="Recruiters"
+>
+  {/* Download button */}
+  <div class="download-section">
+    <ButtonPrimary href="/YourResume.pdf">Download Resume (PDF)</ButtonPrimary>
+    <p class="download-note text-muted">
+      Or view the inline summary below.
+    </p>
+  </div>
+
+  {/* Inline resume summary */}
+  <section class="resume-section">
+    <h2>Summary</h2>
+    <p>
+      {site.role} with experience in your key specialization area,
+      relevant skill area, and another key competency.
+      Currently at {site.employer}.
+    </p>
+  </section>
+
+  <section class="resume-section">
+    <h2>Experience</h2>
+    {workExperience.map(entry => (
+      <div class="experience-entry">
+        <div class="experience-header">
+          {entry.logo && (
+            <img src={entry.logo} alt="" class="resume-logo" width="32" height="32" loading="lazy" />
+          )}
+          <div>
+            <h3>{entry.title}</h3>
+            <p class="company-line">{entry.company} &middot; {entry.startDate} — {entry.endDate}</p>
+          </div>
+        </div>
+        <ul>
+          {entry.highlights.map(h => <li>{h}</li>)}
+        </ul>
+      </div>
+    ))}
+    <ButtonGhost href="/work">View full work history</ButtonGhost>
+  </section>
+
+  <section class="resume-section">
+    <h2>Education</h2>
+    <div class="education-entry">
+      <img src="/assets/logos/your-university.png" alt="" class="resume-logo" width="32" height="32" loading="lazy" />
+      <div>
+        <strong>{education.degree.title}</strong><br />
+        {education.degree.institution} — {education.degree.location}<br />
+        Graduated {education.degree.graduationDate}
+      </div>
+    </div>
+    <ButtonGhost href="/education">View education details</ButtonGhost>
+  </section>
+
+  <section class="resume-section">
+    <h2>Certifications</h2>
+    <ul class="cert-list">
+      <li class="cert-entry">
+        <img src="/assets/logos/your-cert-logo-1.png" alt="" class="resume-logo" width="32" height="32" loading="lazy" />
+        <span>Your Certification #1 (Active)</span>
+      </li>
+      <li class="cert-entry">
+        <img src="/assets/logos/your-cert-logo-2.png" alt="" class="resume-logo" width="32" height="32" loading="lazy" />
+        <span>Your Certification #2 (Active)</span>
+      </li>
+    </ul>
+    <ButtonGhost href="/certifications">View all certifications</ButtonGhost>
+  </section>
+
+  <section class="resume-section">
+    <h2>Contact</h2>
+    <ul class="contact-list">
+      <li><a href={`mailto:${site.links.email}`}>{site.links.email}</a></li>
+      <li><ExternalLink href={site.links.linkedin}>LinkedIn</ExternalLink></li>
+      <li><ExternalLink href={site.links.github}>GitHub</ExternalLink></li>
+    </ul>
+  </section>
+</ContentLayout>
+
+<style>
+  .download-section {
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .download-note {
+    margin-top: var(--space-1);
+    font-size: 0.8125rem;
+  }
+
+  .resume-section {
+    margin-bottom: var(--space-5);
+  }
+
+  .resume-section h2 {
+    margin-bottom: var(--space-2);
+    padding-bottom: var(--space-1);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .experience-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .resume-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .experience-entry {
+    margin-bottom: var(--space-3);
+  }
+
+  .experience-entry h3 {
+    margin: 0 0 var(--space-1) 0;
+    font-size: 1.0625rem;
+  }
+
+  .company-line {
+    margin: 0 0 var(--space-1) 0;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  ul {
+    padding-left: 1.25em;
+    margin: 0;
+  }
+
+  li {
+    margin-bottom: var(--space-1);
+    font-size: 0.9375rem;
+    line-height: var(--lh-body);
+  }
+
+  .education-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .cert-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .cert-entry {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.9375rem;
+  }
+
+  .contact-list {
+    list-style: none;
+    padding: 0;
+  }
+</style>

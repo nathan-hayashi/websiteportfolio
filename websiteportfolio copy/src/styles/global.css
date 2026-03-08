@@ -1,0 +1,328 @@
+/* =============================================================================
+   GLOBAL STYLES — Portfolio Design System
+   =============================================================================
+   This file provides the CSS reset, base element styles, and utility classes
+   used across the entire site. All values reference design tokens from tokens.css.
+
+   Design philosophy: "Comfort-first, easy to read, fast loading"
+   - System font stack (no font file downloads)
+   - 17px body text for readability
+   - 68ch max content width for optimal line length (50-75 chars)
+   - 8px spacing rhythm throughout
+
+   Coordinated changes:
+   - Token values (colors, spacing, fonts) → edit src/styles/tokens.css
+   - Adding a utility class → available site-wide (use sparingly)
+   - Changing base element styles (h1, h2, p, a, etc.) → affects every page
+   - Imported by: src/layouts/BaseLayout.astro (loaded on every page)
+
+   ADD: To add a new utility class, add it in the UTILITY CLASSES section below.
+
+   Future improvement: Add dark mode support with @media (prefers-color-scheme: dark)
+   ============================================================================= */
+
+/* Import design tokens — must be first so all variables are available */
+@import './tokens.css';
+
+/* =============================================================================
+   CSS RESET
+   Minimal reset to ensure consistent rendering across browsers.
+   ============================================================================= */
+
+/* Border-box sizing prevents padding from increasing element dimensions */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margins — spacing is controlled by component styles */
+* {
+  margin: 0;
+}
+
+/* =============================================================================
+   BASE ELEMENT STYLES
+   These set the default appearance for HTML elements before any component
+   styles are applied. Components can override these with scoped styles.
+   ============================================================================= */
+
+/* Root element — sets the base font and color scheme for the page */
+html {
+  font-family: var(--font-body);
+  font-size: var(--text-body);  /* 17px — slightly larger than browser default for readability */
+  line-height: var(--lh-body);  /* 1.6 — generous line spacing for long-form reading */
+  color: var(--text);           /* #1A1A1A — high contrast against bg for WCAG AAA */
+  background-color: var(--bg);  /* #FAFAFA — warm neutral, softer than pure white */
+
+  /* Smooth scrolling for anchor links (e.g., skip-to-content, scroll-to-section) */
+  scroll-behavior: smooth;
+
+
+}
+
+/* Body — no padding/margin here; layout is handled by page components.
+   This differs from the old approach of body { padding: 2rem; max-width: 900px }
+   because the new design has a full-width nav bar at the top. */
+body {
+  min-height: 100vh;
+  /* Prevent horizontal scrollbar from appearing */
+  overflow-x: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   HEADINGS
+   Hierarchical sizing with consistent line-height for visual rhythm.
+   One H1 per page (WCAG best practice). No heading level skips.
+   --------------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+  line-height: var(--lh-heading);  /* 1.3 — tighter than body for visual weight */
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Heading sizes — scale chosen for clear hierarchy without being too large */
+h1 { font-size: 1.75rem; }   /* ~30px — page titles */
+h2 { font-size: 1.375rem; }  /* ~23px — section headings */
+h3 { font-size: 1.125rem; }  /* ~19px — subsection headings */
+h4 { font-size: 1rem; }      /* ~17px — same as body, distinguished by weight */
+
+/* Spacing between headings and following content */
+h1 { margin-bottom: var(--space-3); }  /* 24px after page title */
+h2 { margin-bottom: var(--space-2); }  /* 16px after section heading */
+h3 { margin-bottom: var(--space-1); }  /* 8px after subsection heading */
+
+/* ---------------------------------------------------------------------------
+   LINKS
+   Accent color for all links. Underline only on hover to reduce visual noise.
+   External links get additional styling via the ExternalLink component.
+   --------------------------------------------------------------------------- */
+a {
+  color: var(--accent);      /* #2563EB — the single brand accent color */
+  text-decoration: none;     /* Clean look; underline appears on hover */
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--accent-hover);  /* #1D4ED8 — slightly darker on hover */
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------------
+   FOCUS STYLES
+   Keyboard navigation focus ring — critical for WCAG AA compliance.
+   Uses :focus-visible so mouse clicks don't show the ring, but Tab does.
+   The ring is accent-colored with a 2px offset for visibility against any bg.
+   --------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);  /* #2563EB ring */
+  outline-offset: 2px;                  /* Gap between element and ring */
+}
+
+/* Remove default focus outline (replaced by :focus-visible above) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---------------------------------------------------------------------------
+   CODE & PREFORMATTED TEXT
+   Inline code gets a subtle background. Code blocks use mono font.
+   Syntax highlighting colors come from Astro's Shiki integration.
+   --------------------------------------------------------------------------- */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;  /* Slightly smaller than surrounding text */
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.15em 0.35em;
+  border-radius: 3px;
+}
+
+/* Code blocks — remove the inline code styling from code inside pre */
+pre {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: var(--space-2);
+  border-radius: var(--radius);
+  overflow-x: auto;     /* Horizontal scroll for long lines */
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+/* ---------------------------------------------------------------------------
+   LISTS
+   Standard list styling with comfortable spacing between items.
+   --------------------------------------------------------------------------- */
+ul, ol {
+  padding-left: var(--space-3);  /* 24px indent */
+}
+
+li {
+  margin-bottom: var(--space-1);  /* 8px between list items */
+}
+
+/* Remove bottom margin from last list item to prevent double-spacing */
+li:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   IMAGES
+   Responsive images that never overflow their container.
+   Reserve space to prevent Cumulative Layout Shift (CLS).
+   --------------------------------------------------------------------------- */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;  /* Remove inline gap below images */
+}
+
+/* ---------------------------------------------------------------------------
+   TABLES
+   Clean table styling with borders and alternating header background.
+   Used in skills page and other data-dense sections.
+   --------------------------------------------------------------------------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-2) 0;
+}
+
+th, td {
+  text-align: left;
+  padding: var(--space-1) var(--space-2);  /* 8px vertical, 16px horizontal */
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  font-weight: 600;
+  color: var(--text);
+  background-color: var(--bg);
+}
+
+/* ---------------------------------------------------------------------------
+   HORIZONTAL RULES
+   Used as visual section dividers.
+   --------------------------------------------------------------------------- */
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--space-4) 0;  /* 32px vertical spacing */
+}
+
+/* ---------------------------------------------------------------------------
+   PARAGRAPHS
+   Standard spacing between paragraphs for reading flow.
+   --------------------------------------------------------------------------- */
+p {
+  margin-bottom: var(--space-2);  /* 16px between paragraphs */
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* =============================================================================
+   UTILITY CLASSES
+   Reusable classes for common patterns. Use sparingly — prefer component styles.
+   ============================================================================= */
+
+/* Screen-reader only — visually hidden but accessible to assistive technology.
+   Used for skip links (visible on focus) and descriptive labels. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Make sr-only elements visible when focused (for skip link) */
+.sr-only:focus {
+  position: fixed;
+  top: var(--space-1);
+  left: var(--space-1);
+  width: auto;
+  height: auto;
+  padding: var(--space-1) var(--space-2);
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background-color: var(--surface);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  font-weight: 600;
+  z-index: 9999;
+}
+
+/* Muted text — for metadata, dates, secondary information */
+.text-muted {
+  color: var(--muted);
+}
+
+/* Centered text */
+.text-center {
+  text-align: center;
+}
+
+/* Content measure — constrains text width for optimal reading line length */
+.measure {
+  max-width: var(--measure);  /* 68ch ≈ 50-75 characters per line */
+}
+
+/* Page content wrapper — centers content with max width and horizontal padding */
+.page-content {
+  max-width: var(--page-max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-padding);
+  padding-top: var(--space-4);
+}
+
+/* Section label — used for category headers like "FEATURED PROJECTS" */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+/* Accent section label — same as above but in accent color */
+.section-label-accent {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+/* =============================================================================
+   RESPONSIVE ADJUSTMENTS
+   Mobile-first: base styles are for small screens, media queries add for larger.
+   ============================================================================= */
+
+/* Reduce page padding on small screens */
+@media (max-width: 639px) {
+  :root {
+    --page-padding: var(--space-2);  /* 16px on mobile instead of 40px */
+  }
+
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+}

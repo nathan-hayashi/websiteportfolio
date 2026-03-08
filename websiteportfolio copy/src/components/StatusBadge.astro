@@ -1,0 +1,101 @@
+---
+/* =============================================================================
+   STATUS BADGE — Visual indicator for project/cert status
+   =============================================================================
+   Renders a small colored pill badge showing status like "Complete",
+   "In Progress", "Planned", "Active", "Draft", or "Expired".
+
+   How it works on the webpage:
+   - Displays as a small rounded pill next to titles or in card headers
+   - Color-coded: green = complete/active, yellow = in-progress, gray = planned,
+     red = expired, blue = draft
+
+   Props:
+   - status: The status string to display and color-code
+
+   Usage: <StatusBadge status="complete" />
+
+   Coordinated changes:
+   - Used by: ProjectCard, writing/index, projects/[slug], certifications/index, certifications/[slug]
+   - ADD: To add a new status type, add an entry to the statusMap object below
+     with a label and className, then add matching CSS class
+   ============================================================================= */
+
+interface Props {
+  status: string;
+}
+
+const { status } = Astro.props;
+
+/* Map status strings to display labels and CSS class names */
+const statusMap: Record<string, { label: string; className: string }> = {
+  'complete': { label: 'Complete', className: 'badge-success' },
+  'active': { label: 'Active', className: 'badge-success' },
+  'in-progress': { label: 'In Progress', className: 'badge-warn' },
+  'planned': { label: 'Planned', className: 'badge-planned' },
+  'draft': { label: 'Draft', className: 'badge-draft' },
+  'expired': { label: 'Expired', className: 'badge-error' },
+};
+
+/* Fall back to capitalizing the raw status string if not in the map */
+const info = statusMap[status] || {
+  label: status.charAt(0).toUpperCase() + status.slice(1),
+  className: 'badge-planned',
+};
+---
+
+<span class:list={['badge', info.className]}>
+  {info.label}
+</span>
+
+<style>
+  /* Base badge styles — small pill shape with monospace font */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    padding: 0.15em 0.6em;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    border-radius: 999px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  /* Green — Complete, Active */
+  .badge-success {
+    background: var(--success-bg, #EFF6FF);
+    color: var(--success, #16A34A);
+    border: 1px solid var(--success, #16A34A);
+  }
+
+  /* Yellow — In Progress */
+  .badge-warn {
+    background: var(--warn-bg, #FEFCE8);
+    color: var(--warn, #CA8A04);
+    border: 1px solid var(--warn, #CA8A04);
+  }
+
+  /* Gray — Planned */
+  .badge-planned {
+    background: var(--planned-bg, #FAFAFA);
+    color: var(--muted, #5C5C5C);
+    border: 1px solid var(--border, #E0E0E0);
+  }
+
+  /* Blue — Draft */
+  .badge-draft {
+    background: #EFF6FF;
+    color: var(--accent, #2563EB);
+    border: 1px solid var(--accent, #2563EB);
+  }
+
+  /* Red — Expired */
+  .badge-error {
+    background: #FEF2F2;
+    color: var(--error, #DC2626);
+    border: 1px solid var(--error, #DC2626);
+  }
+</style>

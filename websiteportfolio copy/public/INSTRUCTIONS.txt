@@ -1,0 +1,34 @@
+================================================================================
+PUBLIC FOLDER — Static Assets Served at Root URLs
+================================================================================
+
+PURPOSE:
+  Everything in public/ is served as-is at the site root.
+  public/favicon.svg → https://yourdomain.com/favicon.svg
+  public/MyResume.pdf → https://yourdomain.com/MyResume.pdf
+
+FILES YOU NEED TO ADD:
+  1. favicon.svg — Your site's browser tab icon (SVG recommended for crisp scaling)
+  2. favicon.ico — Legacy fallback for older browsers
+  3. YourResume.pdf — Your downloadable resume
+     → Update the href in src/pages/resume.astro to match the filename
+
+  Optional:
+  4. Any other downloadable PDFs (runbooks, thesis papers, etc.)
+
+HOW TO CREATE A FAVICON:
+  - Use https://realfavicongenerator.net/ to generate from any image
+  - Or create a simple SVG with your initials
+  - AI PROMPT: "Create an SVG favicon with the initials [XX] using a
+    clean, modern font. Use [color] as the accent color on a transparent
+    background. Output as valid SVG markup."
+
+SUBFOLDERS:
+  assets/logos/   → Company and certification logo images
+  assets/project/ → Supporting documents for project case studies
+
+CLOUDFLARE-SPECIFIC FILES:
+  _headers      → Security headers applied to all responses
+  _routes.json  → Controls which routes use Cloudflare Functions
+
+NOTE: Do NOT put sensitive files here — everything is publicly accessible.

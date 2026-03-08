@@ -1,0 +1,40 @@
+================================================================================
+LOGOS FOLDER — Company and Certification Logo Images
+================================================================================
+
+PURPOSE:
+  Store logo images for companies, schools, and certification vendors.
+  These are displayed at various sizes throughout the site (work timeline,
+  project detail, resume, education, certifications).
+
+HOW TO ADD A LOGO:
+  1. Save your logo image here (PNG, JPG, or SVG recommended)
+  2. Use a descriptive filename: company-name.png, cert-vendor.png
+  3. Recommended size: at least 200x200px (they display at 32-56px but
+     need to be crisp on retina screens)
+  4. Square or near-square aspect ratio works best
+
+WHERE LOGOS ARE REFERENCED:
+  - Work timeline:    src/data/work.ts → "logo" field per job entry (40px)
+  - Project detail:   src/pages/projects/[...slug].astro → projectLogos map (48px)
+  - Resume page:      src/pages/resume.astro → hardcoded img tags (32px)
+  - Education page:   src/pages/education.astro → hardcoded img tag (56px)
+  - Certifications:   src/pages/certifications/index.astro → certLogos map (48px)
+                      src/pages/certifications/[...slug].astro → certLogos map (48px)
+
+EXAMPLE USAGE IN CODE:
+  In src/data/work.ts:
+    logo: '/assets/logos/your-company.png'
+
+  In a certLogos map (pages/certifications/*.astro):
+    const certLogos = {
+      'your-cert-slug': '/assets/logos/cert-vendor-logo.png',
+    };
+
+AI PROMPT TO FIND FREE LOGOS:
+  "Where can I find free-to-use company logos for a personal portfolio?
+   What are the copyright considerations for using company logos?"
+
+NOTE: Do NOT commit trademarked logos to a public repository without
+      confirming usage rights. Many companies allow logo use for portfolio
+      and resume purposes under fair use, but check their brand guidelines.

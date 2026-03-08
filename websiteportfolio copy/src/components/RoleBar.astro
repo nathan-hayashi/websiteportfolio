@@ -1,0 +1,84 @@
+---
+/* =============================================================================
+   ROLE BAR — Current visitor role indicator
+   =============================================================================
+   A small, subtle bar shown between the navigation and main content when a
+   visitor role is active (set via the /gate page). Shows which role is active
+   and provides a "Change" link back to the gate.
+
+   How it works:
+   - Starts hidden (progressive enhancement — invisible without JS)
+   - Client script reads sessionStorage('visitor-role') and shows the bar
+   - Clicking "Change" navigates back to /gate for re-selection
+
+   Coordinated changes:
+   - Role storage → set by src/pages/gate.astro via sessionStorage
+   - Role detection → src/layouts/BaseLayout.astro inline script sets data-role
+   - Used by: BaseLayout.astro (placed between Navigation and main)
+   ============================================================================= */
+---
+
+<div class="role-bar" hidden>
+  <p>
+    Viewing as: <strong class="role-bar-label"></strong>
+    <span class="role-bar-sep">&middot;</span>
+    <a href="/gate" class="role-bar-change">Change</a>
+  </p>
+</div>
+
+<style>
+  .role-bar {
+    background: var(--accent-subtle);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    padding: 0.375rem var(--space-2);
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .role-bar p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+  }
+
+  .role-bar-label {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .role-bar-sep {
+    color: var(--border);
+  }
+
+  .role-bar-change {
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+
+  .role-bar-change:hover {
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  (function() {
+    var bar = document.querySelector('.role-bar');
+    var label = document.querySelector('.role-bar-label');
+    if (!bar || !label) return;
+    try {
+      var role = sessionStorage.getItem('visitor-role');
+      if (role) {
+        var names: Record<string, string> = {
+          'recruiter': 'Recruiter',
+          'hiring-manager': 'Hiring Manager',
+          'visitor': 'Visitor',
+        };
+        label.textContent = names[role] || role;
+        bar.removeAttribute('hidden');
+      }
+    } catch(e) {}
+  })();
+</script>

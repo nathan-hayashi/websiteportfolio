@@ -1,0 +1,64 @@
+---
+/* =============================================================================
+   PROJECTS INDEX — Listing of all portfolio projects
+   =============================================================================
+   Displays all projects as cards with status badges and technology tags.
+   Archived projects are hidden by default. Corresponds to SVG 05.
+
+   URL: /projects
+
+   Coordinated changes:
+   - Adding a project → create a new .md file in src/content/projects/
+     (see content.config.ts for required frontmatter fields)
+   - Project card appearance → edit src/components/ProjectCard.astro
+   - Project schema (adding frontmatter fields) → edit the projects
+     collection in src/content.config.ts
+   - Imports: ContentLayout, ProjectCard, astro:content
+
+   How it works on the webpage:
+   - Each project is a clickable ProjectCard linking to its detail page
+   - Cards show title, description, status badge, and tech tags
+   - NDA/sanitized projects show a confidentiality note on the card
+   - Sorted by date (newest first), archived projects filtered out
+
+   Future improvement: Add tag-based filtering with CSS :target or
+   a small Astro island for interactive filtering.
+   ============================================================================= */
+
+import ContentLayout from '../../layouts/ContentLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+/* Fetch all non-archived projects, sorted newest first */
+const projects = await getCollection('projects');
+const visibleProjects = projects
+  .filter(p => !p.data.archived)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<ContentLayout
+  title="Projects"
+  description="Technical case studies with architecture details and outcomes."
+  breadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'Projects' },
+  ]}
+  audience="Hiring Managers"
+>
+  {visibleProjects.length === 0 ? (
+    <p class="text-muted">Projects coming soon!</p>
+  ) : (
+    <div class="projects-grid">
+      {visibleProjects.map(project => (
+        <ProjectCard project={project} />
+      ))}
+    </div>
+  )}
+</ContentLayout>
+
+<style>
+  .projects-grid {
+    display: grid;
+    gap: var(--space-3);
+  }
+</style>

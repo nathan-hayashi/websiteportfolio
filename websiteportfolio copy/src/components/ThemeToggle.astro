@@ -1,0 +1,97 @@
+---
+/* =============================================================================
+   THEME TOGGLE — Light/dark mode switch button
+   =============================================================================
+   A button that toggles between light and dark themes. Shows a moon icon
+   in light mode (click to go dark) and a sun icon in dark mode (click to
+   go light). Uses inline SVG icons — no external dependencies.
+
+   How it works:
+   - CSS shows/hides the correct icon based on [data-theme="dark"] on <html>
+   - Script toggles the attribute and saves preference to localStorage
+   - Anti-flash script in BaseLayout <head> applies theme before paint
+
+   Coordinated changes:
+   - Dark mode token overrides → src/styles/tokens.css [data-theme="dark"]
+   - Anti-flash script → src/layouts/BaseLayout.astro <head>
+   - Used by: Navigation.astro (desktop + mobile placements)
+   ============================================================================= */
+---
+
+<button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle theme">
+  {/* Sun icon — shown in dark mode (click to switch to light) */}
+  <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line>
+    <line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line>
+    <line x1="21" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  </svg>
+
+  {/* Moon icon — shown in light mode (click to switch to dark) */}
+  <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .theme-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-subtle);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Default (light mode): show moon, hide sun */
+  .icon-sun { display: none; }
+  .icon-moon { display: block; }
+
+  /* Dark mode: show sun, hide moon */
+  :global([data-theme="dark"]) .icon-sun { display: block; }
+  :global([data-theme="dark"]) .icon-moon { display: none; }
+</style>
+
+<script>
+  document.querySelectorAll('.theme-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+
+      if (newTheme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+      } else {
+        html.removeAttribute('data-theme');
+      }
+
+      try {
+        localStorage.setItem('theme', newTheme);
+      } catch {
+        /* localStorage unavailable — toggle still works for this session */
+      }
+    });
+  });
+</script>

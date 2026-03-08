@@ -1,0 +1,371 @@
+---
+/* =============================================================================
+   HOME PAGE — Main landing page with hero, tiles, featured content
+   =============================================================================
+   The primary entry point for the portfolio. Displays:
+   - Hero section with name, role, tagline, and proof bullets
+   - 6-tile grid linking to main sections
+   - Featured projects (if any are marked featured)
+   - Latest writing posts
+
+   URL: / (site root)
+
+   Coordinated changes:
+   - Hero content (name, role, tagline, bullets) → edit src/data/site.ts
+   - Category tiles (labels, links, descriptions) → edit site.categoryTiles
+     in src/data/site.ts
+   - Featured projects → mark featured: true in project markdown frontmatter
+     (src/content/projects/*.md)
+   - Latest writing → auto-reads from src/content/writing/ (newest 3 non-draft)
+   - Imports: BaseLayout, CategoryTile, ProjectCard, ButtonGhost
+
+   How it works on the webpage:
+   - Hero section establishes identity and value proposition
+   - Category tiles provide quick navigation to all sections
+   - Featured projects and latest writing give visitors immediate content
+
+   Role-based customization:
+   - Gate page (/gate) stores visitor role in sessionStorage
+   - BaseLayout inline script sets data-role on <html> before paint
+   - CSS below reorders sections and highlights priority tiles per role
+   - All variants use the same HTML; only CSS order/emphasis changes
+   ============================================================================= */
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CategoryTile from '../components/CategoryTile.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import ButtonGhost from '../components/ButtonGhost.astro';
+import { site, roleConfig } from '../data/site';
+import { getCollection } from 'astro:content';
+
+/* Fetch featured projects and latest writing posts */
+const allProjects = await getCollection('projects');
+const featuredProjects = allProjects
+  .filter(p => p.data.featured && !p.data.archived)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const allWriting = await getCollection('writing');
+const latestPosts = allWriting
+  .filter(p => !p.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout
+  title={`${site.name} — ${site.role}`}
+  description={site.tagline}
+>
+  {/* ===== HERO SECTION ===== */}
+  <header class="hero">
+    <h1>{site.name}</h1>
+    <p class="role-wedge">{site.role}</p>
+    <p class="tagline">{site.tagline}</p>
+
+    {/* Proof bullets — safe-to-share impact metrics */}
+    {site.proofBullets.length > 0 && (
+      <ul class="proof-bullets">
+        {site.proofBullets.map(bullet => <li>{bullet}</li>)}
+      </ul>
+    )}
+
+    {/* Role-specific subtitle — hidden by default, revealed per data-role */}
+    <p class="role-subtitle" aria-live="polite">
+      {Object.entries(roleConfig).map(([role, config]) => (
+        <span class={`role-sub-${role}`}>{config.subtitle}</span>
+      ))}
+    </p>
+
+    {/* Availability note */}
+    <p class="availability">{site.availability}</p>
+  </header>
+
+  {/* ===== SECTIONS CONTAINER — flex column enables CSS order per role ===== */}
+  <div class="home-sections">
+
+  {/* ===== CATEGORY TILES GRID ===== */}
+  <section class="tiles-section" aria-label="Site sections">
+    <div class="tiles-grid">
+      {site.categoryTiles.map(tile => (
+        <CategoryTile
+          title={tile.title}
+          href={tile.href}
+          description={tile.description}
+        />
+      ))}
+    </div>
+  </section>
+
+  {/* ===== FEATURED PROJECTS ===== */}
+  {featuredProjects.length > 0 && (
+    <section class="featured-section" aria-label="Featured projects">
+      <h2 class="section-label">Featured Projects</h2>
+      <div class="featured-grid">
+        {featuredProjects.map(project => (
+          <ProjectCard project={project} />
+        ))}
+      </div>
+      <ButtonGhost href="/projects">View all projects</ButtonGhost>
+    </section>
+  )}
+
+  {/* ===== LATEST WRITING ===== */}
+  {latestPosts.length > 0 && (
+    <section class="writing-section" aria-label="Latest writing">
+      <h2 class="section-label">Latest Writing</h2>
+      <ul class="writing-list">
+        {latestPosts.map(post => (
+          <li>
+            <a href={`/writing/${post.id}`}>
+              <span class="post-title">{post.data.title}</span>
+              {post.data.description && (
+                <span class="post-desc">{post.data.description}</span>
+              )}
+              <time datetime={post.data.pubDate.toISOString()}>
+                {post.data.pubDate.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </time>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <ButtonGhost href="/writing">View all posts</ButtonGhost>
+    </section>
+  )}
+
+  </div>{/* end .home-sections */}
+
+</BaseLayout>
+
+<style>
+  /* Hero section — centered text, prominent name and role */
+  .hero {
+    text-align: center;
+    padding: var(--space-6) 0 var(--space-5);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--space-5);
+  }
+
+  .hero h1 {
+    margin: 0 0 var(--space-1) 0;
+    font-size: 2.5rem;
+  }
+
+  .role-wedge {
+    margin: 0 0 var(--space-2) 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .tagline {
+    margin: 0 0 var(--space-3) 0;
+    color: var(--muted);
+    font-size: 1.0625rem;
+    max-width: var(--measure);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .proof-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-3) 0;
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+
+  .proof-bullets li {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--muted);
+    padding: 0.375rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    white-space: nowrap;
+    margin-bottom: 0;
+    text-align: center;
+  }
+
+  .availability {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  /* Category tiles — responsive 3-column grid */
+  .tiles-section {
+    margin-bottom: var(--space-6);
+  }
+
+  .tiles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+
+  @media (max-width: 768px) {
+    .proof-bullets {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .proof-bullets li {
+      white-space: normal;
+    }
+
+    .tiles-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .tiles-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Featured projects section */
+  .featured-section {
+    margin-bottom: var(--space-6);
+  }
+
+  .featured-grid {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  /* Latest writing section */
+  .writing-section {
+    margin-bottom: var(--space-6);
+  }
+
+  .writing-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-3) 0;
+  }
+
+  .writing-list li {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .writing-list a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .writing-list a:hover .post-title {
+    color: var(--accent);
+  }
+
+  .post-title {
+    font-weight: 600;
+    transition: color 0.15s ease;
+  }
+
+  .post-desc {
+    color: var(--muted);
+    font-size: 0.875rem;
+    flex: 1;
+  }
+
+  .writing-list time {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    white-space: nowrap;
+    margin-left: auto;
+  }
+
+  /* =========================================================================
+     ROLE-SPECIFIC SUBTITLE — hidden by default, shown per data-role
+     ========================================================================= */
+
+  .role-subtitle {
+    margin: 0 0 var(--space-2) 0;
+    font-size: 0.9375rem;
+    color: var(--accent);
+    font-weight: 500;
+    min-height: 0;
+  }
+
+  .role-subtitle span {
+    display: none;
+  }
+
+  /* =========================================================================
+     SECTIONS CONTAINER — enables CSS order reordering per role
+     ========================================================================= */
+
+  .home-sections {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* =========================================================================
+     ROLE-BASED SECTION ORDERING
+     Default (no role): natural document order — tiles, projects, writing
+     ========================================================================= */
+
+  /* Recruiter: tiles first (credentials focus), then writing, then projects */
+  :global([data-role="recruiter"]) .tiles-section { order: 1; }
+  :global([data-role="recruiter"]) .writing-section { order: 2; }
+  :global([data-role="recruiter"]) .featured-section { order: 3; }
+
+  /* Hiring Manager: projects first (technical depth), then tiles, then writing */
+  :global([data-role="hiring-manager"]) .featured-section { order: 1; }
+  :global([data-role="hiring-manager"]) .tiles-section { order: 2; }
+  :global([data-role="hiring-manager"]) .writing-section { order: 3; }
+
+  /* Visitor: writing first (exploration), then projects, then tiles */
+  :global([data-role="visitor"]) .writing-section { order: 1; }
+  :global([data-role="visitor"]) .featured-section { order: 2; }
+  :global([data-role="visitor"]) .tiles-section { order: 3; }
+</style>
+
+{/* Role-based subtitle visibility + featured tile accent treatment.
+    Uses is:global because we target data attributes on <html> and
+    data-tile-href attributes inside the child CategoryTile component. */}
+<style is:global>
+  /* Show the matching role subtitle */
+  [data-role="recruiter"] .role-sub-recruiter,
+  [data-role="hiring-manager"] .role-sub-hiring-manager,
+  [data-role="visitor"] .role-sub-visitor {
+    display: block;
+  }
+
+  /* Recruiter — highlight credentials tiles */
+  [data-role="recruiter"] .tiles-grid [data-tile-href="/skills"],
+  [data-role="recruiter"] .tiles-grid [data-tile-href="/certifications"],
+  [data-role="recruiter"] .tiles-grid [data-tile-href="/education"] {
+    border: 2px solid var(--accent);
+    background: var(--accent-subtle);
+  }
+
+  /* Hiring Manager — highlight technical tiles */
+  [data-role="hiring-manager"] .tiles-grid [data-tile-href="/projects"],
+  [data-role="hiring-manager"] .tiles-grid [data-tile-href="/work"] {
+    border: 2px solid var(--accent);
+    background: var(--accent-subtle);
+  }
+
+  /* Visitor — highlight exploration tiles */
+  [data-role="visitor"] .tiles-grid [data-tile-href="/projects"],
+  [data-role="visitor"] .tiles-grid [data-tile-href="/about"] {
+    border: 2px solid var(--accent);
+    background: var(--accent-subtle);
+  }
+</style>

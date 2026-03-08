@@ -1,0 +1,98 @@
+---
+/* =============================================================================
+   TL;DR PANEL — Section header with title, audience, read time, description
+   =============================================================================
+   A prominent panel at the top of content pages that gives visitors a quick
+   overview before they commit to reading. Inspired by "TL;DR" summary blocks.
+
+   How it works on the webpage:
+   - Displays the page title as an H1
+   - Shows optional metadata: audience tag, read time estimate
+   - Includes a brief description paragraph
+   - Sits below breadcrumbs but above the main content
+
+   Props:
+   - title: The page heading (rendered as H1)
+   - description: Brief summary paragraph (optional)
+   - audience: Who this page is for, e.g. "Hiring Managers" (optional)
+   - readTime: Estimated read time, e.g. "5 min read" (optional)
+
+   Usage:
+   <TldrPanel
+     title="Projects"
+     description="Technical case studies with architecture details."
+     audience="Hiring Managers"
+   />
+
+   Coordinated changes:
+   - Used by: ContentLayout.astro (appears on all section pages)
+   ============================================================================= */
+
+interface Props {
+  title: string;
+  description?: string;
+  audience?: string;
+  readTime?: string;
+}
+
+const { title, description, audience, readTime } = Astro.props;
+---
+
+<header class="tldr-panel">
+  <h1>{title}</h1>
+
+  {/* Optional metadata row — audience tag and read time */}
+  {(audience || readTime) && (
+    <div class="meta-row">
+      {audience && <span class="audience">{audience}</span>}
+      {readTime && <span class="read-time">{readTime}</span>}
+    </div>
+  )}
+
+  {description && <p class="description">{description}</p>}
+</header>
+
+<style>
+  .tldr-panel {
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  h1 {
+    margin: 0 0 var(--space-2) 0;
+    font-size: 2rem;
+    line-height: var(--lh-heading);
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    margin-bottom: var(--space-2);
+  }
+
+  .audience {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.2em 0.6em;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+  }
+
+  .read-time {
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .description {
+    margin: 0;
+    font-size: 1.0625rem;
+    color: var(--muted);
+    line-height: var(--lh-body);
+    max-width: var(--measure);
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+/* =============================================================================
+   BUTTON PRIMARY — Filled accent-color button or link
+   =============================================================================
+   Renders a prominent filled button with the accent blue background.
+   Can render as an <a> tag (for navigation) or <button> tag (for actions).
+
+   How it works on the webpage:
+   - Solid #2563EB background with white text
+   - Darkens on hover (#1D4ED8), shows focus ring on keyboard focus
+   - Used for primary CTAs like "View Resume", "Get in Touch"
+
+   Props:
+   - href (optional): If provided, renders as <a>. Otherwise renders <button>.
+
+   Usage:
+   <ButtonPrimary href="/resume">View Resume</ButtonPrimary>
+   <ButtonPrimary>Submit</ButtonPrimary>
+
+   Coordinated changes:
+   - Used by: pages/resume.astro
+   ============================================================================= */
+
+interface Props {
+  href?: string;
+}
+
+const { href } = Astro.props;
+---
+
+{href ? (
+  <a href={href} class="btn btn-primary">
+    <slot />
+  </a>
+) : (
+  <button class="btn btn-primary" type="button">
+    <slot />
+  </button>
+)}
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: var(--space-1) var(--space-3);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+</style>
